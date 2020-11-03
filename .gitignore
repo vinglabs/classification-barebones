@@ -1,0 +1,5 @@
+.idea/
+__pycache__/
+runs/
+pretrained_weights/
+error_analysis_data/

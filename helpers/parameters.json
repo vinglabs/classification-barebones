@@ -1,0 +1,46 @@
+{
+    "dataset_s3_info": {
+        "bucket_name": "vinglabs",
+        "dataset_key": "datacenter/logo_recognition/26102020/22_brands/dataset.zip",
+        "destination_filename": "dataset.zip"
+    },
+    "project_directory_path": "X:\\python_projects\\vinglabs\\classification-deployments",
+    "model_type": "googlenet",
+    "venv_path": "X:\\python_projects\\virtual_environments\\inference_env\\Scripts\\python",
+    "train": {
+        "epochs": 10000,
+        "batch_size": 2,
+        "width": 250,
+        "height": 250,
+        "resume": false,
+        "weights": "best.pt",
+        "adam": true,
+        "lr": 0.0001,
+        "scheduler": false,
+        "device": "cpu",
+        "name": "test",
+        "augment": false
+    },
+    "detect": {
+        "weights_file_name": "best.pt",
+        "source": "X:\\python_projects\\vinglabs\\classification-deployments\\assets\\dataset\\valid",
+        "output": "X:\\python_projects\\vinglabs\\classification-deployments\\exports\\output_valid"
+    },
+    "export": {
+        "bucket_name": "vinglabs",
+        "destination_directory": "modelcenter/brand_detection_yolo/**30-complete-yolov3-tiny-pretrained-3-adam-bs4ac16/"
+    },
+    "import": {
+        "bucket_name": "vinglabs",
+        "source_key": "new_models/brand_detection_yolo/test_model/export.zip"
+    },
+    "sync": {
+        "bucket_name": "vinglabs",
+        "destination_key": "color_classification/tensorboard_events"
+    },
+    "error_analysis": {
+        "image_port": 8001,
+        "bucket_name": "vinglabs",
+        "destination_key": "error_analysis_pickle"
+    }
+}
