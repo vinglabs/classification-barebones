@@ -2,7 +2,7 @@ import json
 import os
 import pickle
 from helper_utils.error_analysis_tasks import get_data_urls,get_prediction_stats
-from helper_utils.error_analysis_utils import format_stats
+from helper_utils.error_analysis_utils import format_stats,format_file_stats
 import subprocess
 from helper_utils.file_utils import create_directory
 from helper_utils.s3_helpers import sync_to_S3_command
@@ -48,21 +48,46 @@ def error_analysis():
     #stats(f1,p,r)
     stats,file_stats = get_prediction_stats(prediction_directory,input_labels,serve_port)
 
+    #convert file stats from {class_id:{"tp":[],"fp":[],"fn":[]}} to {"tp":{"class_id":[]},"fp":{"class_id":[]},...}
+    file_stats = format_file_stats(file_stats)
+
     number_stats = {
-        'training_images': {class_index: len(stat) for class_index, stat in training_urls.items()},
-        'input_images': {class_index: len(stat) for class_index, stat in prediction_urls.items()}
+        'training_urls': {class_index: len(stat) for class_index, stat in training_urls.items()},
+        'input_urls': {class_index: len(stat) for class_index, stat in prediction_urls.items()},
+        'prediction_urls': {class_index: len(stat) for class_index, stat in prediction_urls.items()},
+        'tp_urls': {class_index: len(stat) for class_index, stat in file_stats['tp'].items()},
+        'fp_urls': {class_index: len(stat) for class_index, stat in file_stats['fp'].items()},
+        'fn_urls': {class_index: len(stat) for class_index, stat in file_stats['fn'].items()}
+
     }
 
     stats, metrics = format_stats(stats, classes)
 
-    json_data = {"training_urls": training_urls,
-                 "input_data_urls":input_urls,
-                 "prediction_urls":prediction_urls,
-                 "stats":stats,
-                 "file_stats":file_stats,
-                 "number_stats":number_stats,
-                 "metrics":metrics,
-                 "classes":classes}
+    # json_data = {"training_urls": training_urls,
+    #              "input_data_urls":input_urls,
+    #              "prediction_urls":prediction_urls,
+    #              "stats":stats,
+    #              "file_stats":file_stats,
+    #              "number_stats":number_stats,
+    #              "metrics":metrics,
+    #              "classes":classes}
+    json_data = {
+        "urls":{
+            "training_urls":training_urls,
+            "input_urls":input_urls,
+            "prediction_urls":prediction_urls,
+            "tp_urls": file_stats['tp'],
+            "fp_urls": file_stats['fp'],
+            "fn_urls":file_stats['fn'],
+        },
+        "number_stats":number_stats,
+        "confusion":{
+            "stats":stats,
+            "metrics":metrics
+        },
+        "classes":classes
+
+    }
 
 
     print("Saving pickle file...")

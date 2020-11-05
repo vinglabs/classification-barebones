@@ -16,3 +16,21 @@ def format_stats(stats,classes):
         formatted_stats.append({"class_name":classes[key],"precision":value['p'],"recall":value['r'],"f1":value["f1"]})
     metrics = ["Precision","Recall","F1"]
     return formatted_stats,metrics
+
+def format_file_stats(file_stats):
+    formatted_file_stats = {}
+    fns = {}
+    fps = {}
+    tps = {}
+    for class_id,file_stat in file_stats.items():
+        fns[class_id] = file_stat["fn"]
+        fps[class_id] = file_stat['fp']
+        tps[class_id] = file_stat['tp']
+
+    formatted_file_stats['fn'] = fns
+    formatted_file_stats['fp'] = fps
+    formatted_file_stats['tp'] = tps
+
+    return formatted_file_stats
+
+
