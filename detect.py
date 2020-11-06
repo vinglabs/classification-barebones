@@ -8,6 +8,8 @@ import argparse
 from models import get_model
 import pickle
 import shutil
+from tqdm import tqdm
+from timeit import default_timer
 
 def detect_output():
 
@@ -37,15 +39,17 @@ def detect_output():
     detectloader = DataLoader(LoadImages(transform=Pad(input_height,input_width,'letterbox'),image_files_dir=images_dir),batch_size=32)
 
 
-    for filenames,imgs in detectloader:
+    for j,(filenames,imgs) in enumerate(tqdm(detectloader,desc="Running")):
         model.eval()
         imgs = imgs.to(device)
         model = model.to(device)
+        torch.cuda.synchronize()
+        t_start = default_timer()
         output = model(imgs)
-
+        torch.cuda.synchronize()
+        print("\n Time ",str(round(default_timer()-t_start,2))+"s")
         probs = torch.nn.functional.softmax(output)
         probs, preds = torch.topk(probs, 2 ,1)
-
         for i,pred in enumerate(preds):
             first_pred_index = pred[0].item()
             second_pred_index = pred[1].item()
@@ -67,7 +71,6 @@ def detect_output():
 
             pickle_savepath = savepath.replace("jpg","p")
             pickle.dump({os.path.splitext(filename)[0]:[(first_pred_index,first_prob),(second_pred_index,second_prob)]},open(pickle_savepath,"wb"))
-
 
 
 

@@ -55,8 +55,10 @@ def train_model():
     test_dataset = LoadImagesAndLabels(transform=Pad(input_height, input_width, 'letterbox'),
                                        image_files_dir=valid_dir, labels_file_dir=valid_dir)
 
-    trainloader = DataLoader(train_dataset, batch_size=train_batch_size, shuffle=True)
-    testloader = DataLoader(test_dataset, batch_size=train_batch_size, shuffle=False)
+    nw = min([os.cpu_count(), train_batch_size if train_batch_size > 1 else 0, 8])  # number of workers
+    print("Num workers ",str(nw))
+    trainloader = DataLoader(train_dataset, batch_size=train_batch_size, shuffle=True,num_workers=nw)
+    testloader = DataLoader(test_dataset, batch_size=train_batch_size, shuffle=False,num_workers=nw)
 
     writer = SummaryWriter(comment=name)
     model, trainable_params = get_model(model_type,len(classes))
@@ -66,7 +68,16 @@ def train_model():
     else:
         optimizer = optim.SGD(trainable_params, lr=lr, momentum= 0.937, nesterov=True)
 
+
+
     model = model.to(device)
+    nl = len(list(model.parameters()))
+    np = sum(x.numel() for x in model.parameters())
+    ng = sum(x.numel() for x in model.parameters() if x.requires_grad)
+    print("Number of Layers : {},"
+          "Number of Parameters: {},"
+          "Number of trainable parameters: {}".format(str(nl),str(np),str(ng)))
+
 
     if resume:
         checkpoint = torch.load(os.path.join(wdir,weights))
@@ -91,7 +102,6 @@ def train_model():
         pbar = tqdm(enumerate(trainloader),total=len(trainloader))
 
         for i,(imgs,labels,_) in pbar:
-
             imgs = imgs.to(device)
 
             labels = labels.to(device)
@@ -107,10 +117,11 @@ def train_model():
             training_loss.backward()
             optimizer.step()
             running_training_loss  = running_training_loss + training_loss.item()*imgs.size(0)
-            pbar.set_description(str(running_training_loss))
+            print("\nRunning Training Loss")
+            pbar.set_description(str(round(running_training_loss,2)))
 
-        pbar = tqdm(enumerate(testloader), total=len(testloader))
-        for imgs,labels,_ in testloader:
+        # pbar = tqdm(enumerate(testloader), total=len(testloader))
+        for i,(imgs,labels,_) in enumerate(tqdm(testloader)):
             model.eval()
             imgs = imgs.to(device)
             labels = labels.to(device)
@@ -126,13 +137,12 @@ def train_model():
             test_loss = criterion(output, labels)
 
             running_test_loss = running_test_loss + test_loss.item()*imgs.size(0)
-
-            pbar.set_description(str(running_test_loss))
+            print("\nRunning Test Loss ",round(running_test_loss,2))
 
         # scheduler.step()
         stat_dict = calculate_class_wise_precision_recall_f1(test_predictions,test_labels,classes)
-        epoch_training_loss = running_training_loss/len(train_dataset)
-        epoch_test_loss = running_test_loss/len(test_dataset)
+        epoch_training_loss = round(running_training_loss/len(train_dataset),2)
+        epoch_test_loss = round(running_test_loss/len(test_dataset),2)
 
         writer.add_scalar("Loss/train",epoch_training_loss,epoch)
         writer.add_scalar("Loss/test",epoch_test_loss,epoch)
@@ -151,9 +161,9 @@ def train_model():
             rs.append(stat_dict[class_name]['recall'])
 
 
-        f1avg = sum(f1s)/len(f1s)
-        rsavg = sum(rs)/len(rs)
-        psavg = sum(ps)/len(ps)
+        f1avg = round(sum(f1s)/len(f1s),2)
+        rsavg = round(sum(rs)/len(rs),2)
+        psavg = round(sum(ps)/len(ps),2)
 
         writer.add_scalar("F1avg",f1avg,epoch)
         writer.add_scalar("Pavg",psavg,epoch)

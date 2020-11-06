@@ -5,11 +5,11 @@
         "destination_filename": "dataset.zip"
     },
     "project_directory_path": "X:\\python_projects\\vinglabs\\classification-deployments",
-    "model_type": "googlenet",
+    "model_type": "mobilenet",
     "venv_path": "X:\\python_projects\\virtual_environments\\inference_env\\Scripts\\python",
     "train": {
         "epochs": 10000,
-        "batch_size": 2,
+        "batch_size": 4,
         "width": 250,
         "height": 250,
         "resume": false,
@@ -17,7 +17,7 @@
         "adam": true,
         "lr": 0.0001,
         "scheduler": false,
-        "device": "cpu",
+        "device": "gpu",
         "name": "test",
         "augment": false
     },
