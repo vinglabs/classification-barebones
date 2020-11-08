@@ -1,5 +1,5 @@
 from torch.utils.data import DataLoader
-from dataset import LoadImagesAndLabels,Pad
+from dataset import LoadImagesAndLabels
 import torch
 import torch.nn as nn
 from torch.optim import lr_scheduler
