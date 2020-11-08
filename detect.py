@@ -22,6 +22,7 @@ def detect_output():
     input_height = opt.height
     classes_dir = opt.classes_dir
     output_dir = opt.output
+    padding_kind = opt.padding_kind
 
 
     if os.path.exists(output_dir):
@@ -36,7 +37,9 @@ def detect_output():
     classes = pickle.load(open(os.path.join(classes_dir,'one_not.p'),'rb'))['classes']
     model,optimizer = get_model(model_type,len(classes))
     model.load_state_dict(checkpoint['model'])
-    detectloader = DataLoader(LoadImages(transform=Pad(input_height,input_width,'letterbox'),image_files_dir=images_dir),batch_size=32)
+    # detectloader = DataLoader(LoadImages(transform=Pad(input_height,input_width,'letterbox'),image_files_dir=images_dir),batch_size=32)
+    detectloader = DataLoader(LoadImages(image_files_dir=images_dir,padding_kind=padding_kind,
+                                         padded_image_shape=(input_width,input_height)),batch_size=32)
 
 
     for j,(filenames,imgs) in enumerate(tqdm(detectloader,desc="Running")):
@@ -86,6 +89,8 @@ if __name__ == "__main__":
     parser.add_argument('--model-type',type=str,default="resnet18")
     parser.add_argument('--classes-dir',type=str,default='')
     parser.add_argument('--output', type=str, default='output', help='output folder')
+    parser.add_argument("--padding-kind",type=str,help="whole/letterbox/nopad")
+
 
 
     opt = parser.parse_args()

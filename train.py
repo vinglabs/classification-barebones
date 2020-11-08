@@ -31,6 +31,8 @@ def train_model():
     device = opt.device
     weights = opt.weights
     wdir = opt.weights_dir
+    padding_kind = opt.padding_kind
+
 
 
     #device selection
@@ -47,13 +49,27 @@ def train_model():
 
     print("Using ",device)
 
+    if os.path.exists("augment.p"):
+        print("Reading augmentation specs from augment.p")
+        augment = pickle.load(open("augment.p","rb"))
+        print("Using augment = ",augment)
+    else:
+        augment = {}
 
     classes = pickle.load(open(os.path.join(train_dir,'one_not.p'),'rb'))['classes']
 
-    train_dataset = LoadImagesAndLabels(transform=Pad(input_height, input_width, 'letterbox'),
-                                        image_files_dir=train_dir, labels_file_dir=train_dir)
-    test_dataset = LoadImagesAndLabels(transform=Pad(input_height, input_width, 'letterbox'),
-                                       image_files_dir=valid_dir, labels_file_dir=valid_dir)
+    # train_dataset = LoadImagesAndLabels(transform=Pad(input_height, input_width, 'letterbox'),
+    #                                     image_files_dir=train_dir, labels_file_dir=train_dir)
+    # test_dataset = LoadImagesAndLabels(transform=Pad(input_height, input_width, 'letterbox'),
+    #                                    image_files_dir=valid_dir, labels_file_dir=valid_dir)
+    
+    train_dataset = LoadImagesAndLabels(image_files_dir=train_dir,labels_file_dir=train_dir,
+                                        padding_kind=padding_kind,padded_image_shape=(input_width,input_height),
+                                        augment=augment)
+
+    test_dataset = LoadImagesAndLabels(image_files_dir=valid_dir,labels_file_dir=valid_dir,
+                                        padding_kind=padding_kind,padded_image_shape=(input_width,input_height),augment={})
+
 
     nw = min([os.cpu_count(), train_batch_size if train_batch_size > 1 else 0, 8])  # number of workers
     print("Num workers ",str(nw))
@@ -215,6 +231,7 @@ if __name__ == "__main__":
     parser.add_argument('--adam', action='store_true', help='use adam optimizer')
     parser.add_argument('--weights',type=str,help='weights to be used for resumption',default='best.pt')
     parser.add_argument('--weights-dir',type=str,help='dir to save weights')
+    parser.add_argument("--padding-kind",type=str,help="whole/letterbox/nopad")
 
     opt = parser.parse_args()
     print(opt)

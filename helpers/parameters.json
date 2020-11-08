@@ -1,7 +1,7 @@
 {
     "dataset_s3_info": {
         "bucket_name": "vinglabs",
-        "dataset_key": "datacenter/logo_recognition/26102020/22_brands/dataset.zip",
+        "dataset_key": "datacenter/color_recognition/07112020/complete/dataset.zip",
         "destination_filename": "dataset.zip"
     },
     "project_directory_path": "X:\\python_projects\\vinglabs\\classification-deployments",
@@ -19,7 +19,7 @@
         "scheduler": false,
         "device": "gpu",
         "name": "test",
-        "augment": false
+        "padding_kind": "nopad"
     },
     "detect": {
         "weights_file_name": "best.pt",
