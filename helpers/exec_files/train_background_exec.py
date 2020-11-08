@@ -24,6 +24,7 @@ def create_shell_strings(background=False):
     name = parameters['train']['name']
     image_height = parameters['train']['height']
     image_width = parameters['train']['width']
+    padding_kind = parameters['train']['padding_kind']
 
 
 
@@ -71,7 +72,8 @@ def create_shell_strings(background=False):
                          " --lr " + str(lr) +\
                          " --model-type " + str(model_type) +\
                         " --valid-data-dir " + str(valid_data_dir) +\
-                        " --train-data-dir " + str(train_data_dir)
+                        " --train-data-dir " + str(train_data_dir) + \
+                        " --padding-kind " + str(padding_kind)
 
 
 
