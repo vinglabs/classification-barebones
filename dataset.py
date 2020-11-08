@@ -128,7 +128,7 @@ class LoadImagesAndLabels(Dataset):
             if "hsv" in self.augment.keys():
                 img = hsv(img,self.augment['hsv']['hgain'],self.augment['hsv']['sgain'],self.augment['hsv']['vgain'])
 
-        save_img = True
+        save_img = False
         if save_img and index < 100:
             if not os.path.exists("data-samples"):
                 os.mkdir("data-samples")
