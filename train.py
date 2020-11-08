@@ -141,8 +141,8 @@ def train_model():
 
         # scheduler.step()
         stat_dict = calculate_class_wise_precision_recall_f1(test_predictions,test_labels,classes)
-        epoch_training_loss = round(running_training_loss/len(train_dataset),2)
-        epoch_test_loss = round(running_test_loss/len(test_dataset),2)
+        epoch_training_loss = running_training_loss/len(train_dataset)
+        epoch_test_loss = running_test_loss/len(test_dataset)
 
         writer.add_scalar("Loss/train",epoch_training_loss,epoch)
         writer.add_scalar("Loss/test",epoch_test_loss,epoch)
@@ -161,20 +161,15 @@ def train_model():
             rs.append(stat_dict[class_name]['recall'])
 
 
-        f1avg = round(sum(f1s)/len(f1s),2)
-        rsavg = round(sum(rs)/len(rs),2)
-        psavg = round(sum(ps)/len(ps),2)
+        f1avg = sum(f1s)/len(f1s)
+        rsavg = sum(rs)/len(rs)
+        psavg = sum(ps)/len(ps)
 
         writer.add_scalar("F1avg",f1avg,epoch)
         writer.add_scalar("Pavg",psavg,epoch)
         writer.add_scalar("Ravg",rsavg,epoch)
 
-        print("Epoch ", epoch)
-        print("Training Loss ", epoch_training_loss)
-        print("Validation Loss ", epoch_test_loss)
-        print("Mean P", psavg)
-        print("Mean R ", rsavg)
-        print("Mean F1 ", f1avg)
+
 
 
         chkpt = {'epoch': epoch,
@@ -184,15 +179,6 @@ def train_model():
 
         torch.save(chkpt,os.path.join(wdir,"last.pt"))
 
-
-
-        # if stat_dict["accuracy"] > best_accuracy:
-        #     best_accuracy = stat_dict['accuracy']
-        #     torch.save(chkpt, os.path.join(wdir,"best.pt"))
-        # elif stat_dict['accuracy'] == best_accuracy:
-        #     if best_validation_error == epoch_test_loss:
-        #         print("Saving due to same accuracy but better loss")
-        #         torch.save(chkpt, os.path.join(wdir,"best.pt"))
         if f1avg > best_f1:
             best_f1 = f1avg
             torch.save(chkpt,os.path.join(wdir,"best.pt"))
@@ -204,6 +190,13 @@ def train_model():
 
         if epoch_test_loss < best_validation_error:
             best_validation_error = epoch_test_loss
+
+        print("Epoch ", epoch)
+        print("Training Loss ", round(epoch_training_loss,4))
+        print("Validation Loss ", round(epoch_test_loss,4))
+        print("Mean P", round(psavg,4))
+        print("Mean R ", round(rsavg,4))
+        print("Mean F1 ", round(f1avg,4))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
