@@ -18,7 +18,6 @@ def create_shell_strings(background=False):
     resume = parameters['train']['resume']
     weights = parameters['train']['weights']
     device = parameters['train']['device']
-    augment = parameters['train']['augment']
     adam = parameters['train']['adam']
     lr = parameters['train']['lr']
     name = parameters['train']['name']
@@ -89,9 +88,6 @@ def create_shell_strings(background=False):
 
     if name != '':
         shell_string_train += " --name " + str(name) + " "
-
-    if augment:
-        shell_string_train += " --augment "
 
     if background:
         shell_string_train += " >nohup.out 2>&1 &"

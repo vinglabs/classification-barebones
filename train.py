@@ -227,7 +227,6 @@ if __name__ == "__main__":
     parser.add_argument('--name', default='', help='name of run')
     parser.add_argument('--device', default='gpu', help='device id (i.e. 0 or 0,1 or cpu)')
     parser.add_argument('--lr',type=float,default=0.001,help="learning rate of optimizer")
-    parser.add_argument("--augment",action='store_true',help="enable augmentation")
     parser.add_argument('--adam', action='store_true', help='use adam optimizer')
     parser.add_argument('--weights',type=str,help='weights to be used for resumption',default='best.pt')
     parser.add_argument('--weights-dir',type=str,help='dir to save weights')
