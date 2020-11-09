@@ -12,7 +12,7 @@ def create_shell_strings():
     img_height = parameters['train']['height']
     img_width = parameters['train']['width']
     model_type = parameters['model_type']
-    padding_kind = parameters['padding_kind']
+    padding_kind = parameters['train']['padding_kind']
 
     project_directory_path = os.path.normpath(parameters["project_directory_path"])
     assets_directory_path = os.path.join(project_directory_path,"assets")
