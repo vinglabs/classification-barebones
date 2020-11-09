@@ -147,16 +147,34 @@ class LoadImagesAndLabels(Dataset):
         return len(self.filenames)
 
 class LoadImages(Dataset):
-    def __init__(self,image_files_dir,padding_kind,padded_image_shape):
+    def __init__(self,image_files_dir,padding_kind,padded_image_shape,augment):
 
         self.filenames = glob(os.path.join(image_files_dir , "*.jpg"))
         self.padding_kind = padding_kind
         self.padded_image_shape = padded_image_shape
+        self.augment = augment
 
     def __getitem__(self, index):
 
         img = cv2.imread(self.filenames[index])
         img = pad(img, self.padded_image_shape, self.padding_kind)
+
+        if bool(self.augment):
+            if "rotate" in self.augment.keys():
+                img = rotate(img,self.augment['rotate']['angle_range'],mode=self.augment['rotate']['mode'])
+
+            if "flip_lr" in self.augment.keys() and self.augment['flip_lr']:
+                img = flip_lr(img)
+
+            if "flip_ud" in self.augment.keys() and self.augment['flip_ud']:
+                img = flip_ud(img)
+
+            if "translate" in self.augment.keys():
+                img = translate(img,self.augment['translate']['translate_factor'],self.augment['translate']['mode'])
+
+            if "hsv" in self.augment.keys():
+                img = hsv(img,self.augment['hsv']['hgain'],self.augment['hsv']['sgain'],self.augment['hsv']['vgain'])
+
 
         img = img[:, :, ::-1].transpose(2, 0, 1)
         img = np.ascontiguousarray(img)
