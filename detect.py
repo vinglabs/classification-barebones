@@ -1,4 +1,4 @@
-from dataset import LoadImages,Pad
+from dataset import LoadImages
 from torch.utils.data import DataLoader
 import torch
 import cv2
