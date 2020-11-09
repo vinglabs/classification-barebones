@@ -19,12 +19,14 @@
         "scheduler": false,
         "device": "gpu",
         "name": "test",
-        "padding_kind": "nopad"
+        "padding_kind": "nopad",
+        "pretrained": true
     },
     "detect": {
         "weights_file_name": "best.pt",
         "source": "X:\\python_projects\\vinglabs\\classification-deployments\\assets\\dataset\\valid",
-        "output": "X:\\python_projects\\vinglabs\\classification-deployments\\exports\\output_valid"
+        "output": "X:\\python_projects\\vinglabs\\classification-deployments\\exports\\output_valid",
+        "augment": false
     },
     "export": {
         "bucket_name": "vinglabs",

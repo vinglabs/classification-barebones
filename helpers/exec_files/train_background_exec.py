@@ -24,6 +24,7 @@ def create_shell_strings(background=False):
     image_height = parameters['train']['height']
     image_width = parameters['train']['width']
     padding_kind = parameters['train']['padding_kind']
+    pretrained = parameters['train']['pretrained']
 
 
 
@@ -88,6 +89,9 @@ def create_shell_strings(background=False):
 
     if name != '':
         shell_string_train += " --name " + str(name) + " "
+
+    if pretrained:
+        shell_string_train += " --pretrained "
 
     if background:
         shell_string_train += " >nohup.out 2>&1 &"

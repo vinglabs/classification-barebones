@@ -32,6 +32,7 @@ def train_model():
     weights = opt.weights
     wdir = opt.weights_dir
     padding_kind = opt.padding_kind
+    pretrained = opt.pretrained
 
 
 
@@ -58,10 +59,6 @@ def train_model():
 
     classes = pickle.load(open(os.path.join(train_dir,'one_not.p'),'rb'))['classes']
 
-    # train_dataset = LoadImagesAndLabels(transform=Pad(input_height, input_width, 'letterbox'),
-    #                                     image_files_dir=train_dir, labels_file_dir=train_dir)
-    # test_dataset = LoadImagesAndLabels(transform=Pad(input_height, input_width, 'letterbox'),
-    #                                    image_files_dir=valid_dir, labels_file_dir=valid_dir)
     
     train_dataset = LoadImagesAndLabels(image_files_dir=train_dir,labels_file_dir=train_dir,
                                         padding_kind=padding_kind,padded_image_shape=(input_width,input_height),
@@ -77,7 +74,7 @@ def train_model():
     testloader = DataLoader(test_dataset, batch_size=train_batch_size, shuffle=False,num_workers=nw)
 
     writer = SummaryWriter(comment=name)
-    model, trainable_params = get_model(model_type,len(classes))
+    model, trainable_params = get_model(model_type,len(classes),pretrained)
 
     if adam:
         optimizer = optim.Adam(trainable_params,lr=lr)
@@ -231,6 +228,9 @@ if __name__ == "__main__":
     parser.add_argument('--weights',type=str,help='weights to be used for resumption',default='best.pt')
     parser.add_argument('--weights-dir',type=str,help='dir to save weights')
     parser.add_argument("--padding-kind",type=str,help="whole/letterbox/nopad")
+    parser.add_argument("--pretrained",action="store_true",help="use pretrained base network")
+
+
 
     opt = parser.parse_args()
     print(opt)
