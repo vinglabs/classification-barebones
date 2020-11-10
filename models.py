@@ -4,7 +4,7 @@ from custom_models import TwoLayerConv100RGB
 
 
 def get_model(model_type,num_classes,pretrained=True):
-    if ";" not in model_type:
+    if "-" not in model_type:
         if model_type == 'resnet18':
             if pretrained:
                 model = torchvision.models.resnet18(pretrained=pretrained)
@@ -92,8 +92,8 @@ def get_model(model_type,num_classes,pretrained=True):
                 model.classifier[1] = nn.Linear(model.classifier[1].in_features, num_classes)
                 trainable_params = model.parameters()
 
-    elif model_type.split(";")[0] == 'custom':
-        if model_type.split(";")[1] == "2layer100RGB":
+    elif model_type.split("-")[0] == 'custom':
+        if model_type.split("-")[1] == "2layer100RGB":
             model = TwoLayerConv100RGB()
             trainable_params = model.parameters()
         else:
@@ -104,5 +104,5 @@ def get_model(model_type,num_classes,pretrained=True):
     return model,trainable_params
 
 
-# model = get_model('custom;2layer100RGB',2,False)[0]
+# model = get_model('custom-2layer100RGB',2,False)[0]
 # print(sum([x.numel() for x in model.parameters()]))
