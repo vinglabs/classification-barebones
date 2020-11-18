@@ -217,7 +217,7 @@ def pad(img,final_dims,kind):
             padding_left = (padded_image_width - new_width) // 2
             padding_right = (padded_image_width - new_width) // 2 if (padded_image_width - new_width) % 2 == 0 else (padded_image_width - new_width) // 2 + 1
             img = cv2.resize(img,(new_width,new_height),interpolation=cv2.INTER_AREA)
-            img = cv2.copyMakeBorder(img,padding_left,padding_right,0,0,cv2.BORDER_CONSTANT)
+            img = cv2.copyMakeBorder(img,0,0,padding_left,padding_right,cv2.BORDER_CONSTANT)
             return img
 
     elif kind == 'nopad':
