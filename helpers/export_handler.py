@@ -20,12 +20,12 @@ def export():
 
     print("Copying parameters.json to export folder...")
     # copy parameters.json to export folder
-    parameters_file_path = os.path.join(project_directory_path, 'yolo-barebones-latest', 'helpers', 'parameters.json')
+    parameters_file_path = os.path.join(project_directory_path, 'classification-barebones', 'helpers', 'parameters.json')
     export_directory_parameter_file_path = os.path.join(export_directory_path, 'parameters.json')
     copy_file(parameters_file_path, export_directory_parameter_file_path)
 
     print("Copying runs folder to export folder...")
-    runs_directory_path = os.path.join(project_directory_path, 'yolo-barebones-latest', "runs")
+    runs_directory_path = os.path.join(project_directory_path, 'classification-barebones', "runs")
     export_directory_runs_directory = os.path.join(export_directory_path, "runs")
     shutil.copytree(runs_directory_path, export_directory_runs_directory)
 
