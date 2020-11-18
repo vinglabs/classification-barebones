@@ -5,13 +5,13 @@ import torch
 
 
 class TwoLayerConv100RGB(nn.Module):
-    def __init__(self):
+    def __init__(self,num_classes):
         super(TwoLayerConv100RGB,self).__init__()
         self.conv1 = nn.Conv2d(3,6,5)
         self.pool = nn.MaxPool2d(2,2)
         self.conv2 = nn.Conv2d(6,16,5)
         self.fc1 = nn.Linear(16*22*22,10)
-        self.fc2 = nn.Linear(10,2)
+        self.fc2 = nn.Linear(10,num_classes)
 
 
     def forward(self,x):

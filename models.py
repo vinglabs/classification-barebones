@@ -94,7 +94,7 @@ def get_model(model_type,num_classes,pretrained=True):
 
     elif model_type.split("-")[0] == 'custom':
         if model_type.split("-")[1] == "2layer100RGB":
-            model = TwoLayerConv100RGB()
+            model = TwoLayerConv100RGB(num_classes)
             trainable_params = model.parameters()
         else:
             raise("Incorrect custom model specified!")
