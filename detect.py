@@ -82,8 +82,6 @@ def detect_output():
             img = imgs[i].cpu().numpy()
             img = img.transpose(1, 2, 0)[...,::-1]
             img = np.ascontiguousarray(img)
-            mean = np.array([0.485, 0.456, 0.406])
-            std = np.array([0.229, 0.224, 0.225])
             img = std * img + mean
             img = cv2.putText(img, first_prediction + "(" + str(round(first_prob,2)) + ")," + second_prediction + "(" + str(round(second_prob,2)) + ")", (10,10),
                                fontFace= 1,fontScale=1,color=(255,255,255))

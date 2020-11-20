@@ -244,7 +244,7 @@ def calculate_normalization_parameters(train_images_dir):
     mean = m / len(filenames)
     std = s / len(filenames)
 
-    return mean,std
+    return mean[0],std[0]
 
 
 
