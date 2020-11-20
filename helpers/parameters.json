@@ -1,7 +1,7 @@
 {
     "dataset_s3_info": {
         "bucket_name": "vinglabs",
-        "dataset_key": "datacenter/color_recognition/07112020/complete/dataset.zip",
+        "dataset_key": "datacenter/logo_recognition/17112020/large_brands/dataset.zip",
         "destination_filename": "dataset.zip"
     },
     "project_directory_path": "X:\\python_projects\\vinglabs\\classification-deployments",
@@ -10,8 +10,8 @@
     "train": {
         "epochs": 10000,
         "batch_size": 4,
-        "width": 250,
-        "height": 250,
+        "width": 100,
+        "height": 100,
         "resume": false,
         "weights": "best.pt",
         "adam": true,
@@ -19,7 +19,7 @@
         "scheduler": false,
         "device": "gpu",
         "name": "test",
-        "padding_kind": "nopad",
+        "padding_kind": "letterbox",
         "pretrained": true
     },
     "detect": {

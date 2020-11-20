@@ -14,6 +14,7 @@ def create_shell_strings():
     model_type = parameters['model_type']
     padding_kind = parameters['train']['padding_kind']
     augment = parameters['detect']['augment']
+    pretrained = parameters['train']['pretrained']
 
     project_directory_path = os.path.normpath(parameters["project_directory_path"])
     assets_directory_path = os.path.join(project_directory_path,"assets")
@@ -44,6 +45,8 @@ def create_shell_strings():
                         " --classes-dir " + str(classes_dir)  +\
                         " --padding-kind " + str(padding_kind)
 
+    if pretrained:
+        shell_string_train += " --pretrained "
     if augment:
         shell_string_train += " --augment "
 

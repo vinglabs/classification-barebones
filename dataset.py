@@ -98,15 +98,17 @@ import torchvision
 
 
 class LoadImagesAndLabels(Dataset):
-    def __init__(self,image_files_dir,labels_file_dir,padding_kind,padded_image_shape,augment):
+    def __init__(self,image_files_dir,labels_file_dir,padding_kind,padded_image_shape,augment,normalization_params):
 
         self.filenames = glob(os.path.join(image_files_dir , "*.jpg"))
         self.label_filenames = glob(os.path.join(labels_file_dir , "*.p"))
         self.padding_kind=padding_kind
         self.augment = augment
         self.padded_image_shape = padded_image_shape
+        self.normalization_params = normalization_params
 
     def __getitem__(self, index):
+        mean,std = self.normalization_params
         img = cv2.imread(self.filenames[index])
         img_filename = os.path.split(self.filenames[index])[1].split(".")[0]
         label = np.argmax(pickle.load(open(self.label_filenames[0],'rb'))[img_filename])
@@ -139,7 +141,7 @@ class LoadImagesAndLabels(Dataset):
         img = np.ascontiguousarray(img)
         img = torch.tensor(img,dtype=torch.float32)
         label = torch.tensor(label)
-        img = torchvision.transforms.functional.normalize(img, [0.485, 0.456, 0.406], [0.229, 0.224, 0.225], inplace=False)
+        img = torchvision.transforms.functional.normalize(img, mean, std, inplace=False)
 
         return img,label,self.filenames[index]
 
@@ -147,15 +149,16 @@ class LoadImagesAndLabels(Dataset):
         return len(self.filenames)
 
 class LoadImages(Dataset):
-    def __init__(self,image_files_dir,padding_kind,padded_image_shape,augment):
+    def __init__(self,image_files_dir,padding_kind,padded_image_shape,augment,normalization_params):
 
         self.filenames = glob(os.path.join(image_files_dir , "*.jpg"))
         self.padding_kind = padding_kind
         self.padded_image_shape = padded_image_shape
         self.augment = augment
+        self.normalization_params = normalization_params
 
     def __getitem__(self, index):
-
+        mean,std = self.normalization_params
         img = cv2.imread(self.filenames[index])
         img = pad(img, self.padded_image_shape, self.padding_kind)
 
@@ -180,7 +183,7 @@ class LoadImages(Dataset):
         img = np.ascontiguousarray(img)
         img = torch.tensor(img,dtype=torch.float32)
 
-        img = torchvision.transforms.functional.normalize(img, [0.485, 0.456, 0.406], [0.229, 0.224, 0.225], inplace=False)
+        img = torchvision.transforms.functional.normalize(img, mean, std, inplace=False)
 
         return self.filenames[index] ,img
 
@@ -225,6 +228,24 @@ def pad(img,final_dims,kind):
         img = cv2.resize(img,(padded_image_width,padded_image_height),interpolation=cv2.INTER_AREA)
 
         return img
+
+
+
+def calculate_normalization_parameters(train_images_dir):
+    filenames = glob(os.path.join(train_images_dir,"*.jpg"))
+    m = np.zeros((1, 3))
+    s = np.zeros((1, 3))
+    for filename in filenames:
+        img = cv2.imread(filename)
+        img = img / 255
+        m += np.mean(img, axis=tuple(range(img.ndim - 1)))
+        s += np.std(img, axis=tuple(range(img.ndim - 1)))
+
+    mean = m / len(filenames)
+    std = s / len(filenames)
+
+    return mean,std
+
 
 
 

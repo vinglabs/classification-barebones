@@ -24,6 +24,7 @@ def detect_output():
     output_dir = opt.output
     padding_kind = opt.padding_kind
     augment = opt.augment
+    pretrained = opt.pretrained
 
 
     if os.path.exists(output_dir):
@@ -48,8 +49,16 @@ def detect_output():
     else:
         augment_props = {}
 
+    if not pretrained:
+        params = pickle.load(open("normalization_parameters.p","rb"))
+        mean = params['mean']
+        std = params['std']
+    else:
+        mean = [0.485, 0.456, 0.406]
+        std = [0.229, 0.224, 0.225]
+
     detectloader = DataLoader(LoadImages(image_files_dir=images_dir,padding_kind=padding_kind,
-                                         padded_image_shape=(input_width,input_height),augment=augment_props),batch_size=32)
+                                         padded_image_shape=(input_width,input_height),augment=augment_props,normalization_params=(mean,std)),batch_size=32)
 
 
     for j,(filenames,imgs) in enumerate(tqdm(detectloader,desc="Running")):
@@ -101,6 +110,7 @@ if __name__ == "__main__":
     parser.add_argument('--output', type=str, default='output', help='output folder')
     parser.add_argument("--padding-kind",type=str,help="whole/letterbox/nopad")
     parser.add_argument("--augment",action='store_true', help='augment during detection')
+    parser.add_argument("--pretrained",action="store_true",help="use pretrained base network")
 
 
 

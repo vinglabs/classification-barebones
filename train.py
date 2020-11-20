@@ -1,5 +1,5 @@
 from torch.utils.data import DataLoader
-from dataset import LoadImagesAndLabels
+from dataset import LoadImagesAndLabels,calculate_normalization_parameters
 import torch
 import torch.nn as nn
 from torch.optim import lr_scheduler
@@ -59,13 +59,20 @@ def train_model():
 
     classes = pickle.load(open(os.path.join(train_dir,'one_not.p'),'rb'))['classes']
 
+    print("Calculating Normalization Parameters...")
+    if not pretrained:
+        mean,std = calculate_normalization_parameters(train_dir)
+        pickle.dump({"mean":mean,"std":std},open("normalization_parameters.p","wb"))
+    else:
+        mean = [0.485, 0.456, 0.406]
+        std = [0.229, 0.224, 0.225]
     
     train_dataset = LoadImagesAndLabels(image_files_dir=train_dir,labels_file_dir=train_dir,
                                         padding_kind=padding_kind,padded_image_shape=(input_width,input_height),
-                                        augment=augment)
+                                        augment=augment,normalization_params = (mean,std))
 
     test_dataset = LoadImagesAndLabels(image_files_dir=valid_dir,labels_file_dir=valid_dir,
-                                        padding_kind=padding_kind,padded_image_shape=(input_width,input_height),augment={})
+                                        padding_kind=padding_kind,padded_image_shape=(input_width,input_height),augment={},normalization_params = (mean,std))
 
 
     nw = min([os.cpu_count(), train_batch_size if train_batch_size > 1 else 0, 8])  # number of workers

@@ -29,12 +29,19 @@ def export():
     export_directory_runs_directory = os.path.join(export_directory_path, "runs")
     shutil.copytree(runs_directory_path, export_directory_runs_directory)
 
+    normalization_file_path = os.path.join(project_directory_path, 'classification-barebones' , 'normalization_parameters.p')
+    if os.path.exists(normalization_file_path):
+        print("Copying normalization_parameters.p...")
+        export_directory_normalization_file_path = os.path.join(export_directory_path, 'normalization_parameters.p')
+        copy_file(normalization_file_path, export_directory_normalization_file_path)
 
     print("Zipping export folder...")
     # zip export folder
     # do not include .zip in destination file as shutil itself does it
     export_zip_path = os.path.join(project_directory_path, 'exports')
     zip_file(export_directory_path, export_zip_path)
+
+
 
     print("Uploading to S3...")
     # upload zipped to s3
