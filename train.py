@@ -117,6 +117,8 @@ def train_model():
     # #no weight decay for biases
     # optimizer.add_param_group({'params':pg2})
 
+    del pg0,pg1,pg2
+
     model = model.to(device)
     nl = len(list(model.parameters()))
     np = sum(x.numel() for x in model.parameters())
