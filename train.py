@@ -107,15 +107,15 @@ def train_model():
                  str(sum([x.numel() for x in pg2]))))
 
     if adam:
-        optimizer = optim.Adam(pg0,lr=lr)
+        optimizer = optim.Adam(pg0 + pg2,lr=lr)
     else:
-        optimizer = optim.SGD(pg0, lr=lr, momentum= 0.937, nesterov=True)
+        optimizer = optim.SGD(pg0 + pg2, lr=lr, momentum= 0.937, nesterov=True)
 
     #weight decay for weights parameter
     print("Adding decay = ",decay)
     optimizer.add_param_group({'params':pg1,'weight_decay':decay})
-    #no weight decay for biases
-    optimizer.add_param_group({'params':pg2})
+    # #no weight decay for biases
+    # optimizer.add_param_group({'params':pg2})
 
     model = model.to(device)
     nl = len(list(model.parameters()))
@@ -157,7 +157,7 @@ def train_model():
 
             output = model(imgs)
 
-            if model == 'googlenet' and not pretrained:
+            if model_type == 'googlenet' and not pretrained:
                 output = output.logits
 
             training_loss = criterion(output,labels)
