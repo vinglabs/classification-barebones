@@ -20,7 +20,8 @@
         "device": "gpu",
         "name": "test",
         "padding_kind": "letterbox",
-        "pretrained": true
+        "pretrained": true,
+        "decay": 0.0
     },
     "detect": {
         "weights_file_name": "best.pt",

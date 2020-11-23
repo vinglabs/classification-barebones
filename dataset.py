@@ -237,6 +237,7 @@ def calculate_normalization_parameters(train_images_dir):
     s = np.zeros((1, 3))
     for filename in filenames:
         img = cv2.imread(filename)
+        img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
         img = img / 255
         m += np.mean(img, axis=tuple(range(img.ndim - 1)))
         s += np.std(img, axis=tuple(range(img.ndim - 1)))

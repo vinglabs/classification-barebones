@@ -10,6 +10,7 @@ import pickle
 import shutil
 from tqdm import tqdm
 from timeit import default_timer
+import torchvision
 
 def detect_output():
 
@@ -68,6 +69,8 @@ def detect_output():
         torch.cuda.synchronize()
         t_start = default_timer()
         output = model(imgs)
+        if len(output) == 1:
+            output = output[0]
         torch.cuda.synchronize()
         print("\n Time ",str(round(default_timer()-t_start,2))+"s")
         probs = torch.nn.functional.softmax(output)

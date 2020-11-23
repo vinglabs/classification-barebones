@@ -25,6 +25,7 @@ def create_shell_strings(background=False):
     image_width = parameters['train']['width']
     padding_kind = parameters['train']['padding_kind']
     pretrained = parameters['train']['pretrained']
+    decay = parameters['train']['decay']
 
 
 
@@ -73,7 +74,8 @@ def create_shell_strings(background=False):
                          " --model-type " + str(model_type) +\
                         " --valid-data-dir " + str(valid_data_dir) +\
                         " --train-data-dir " + str(train_data_dir) + \
-                        " --padding-kind " + str(padding_kind)
+                        " --padding-kind " + str(padding_kind) +\
+                        " --decay " + str(decay)
 
 
 

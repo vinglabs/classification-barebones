@@ -6,12 +6,13 @@ from torch.optim import lr_scheduler
 from valid import calculate_class_wise_precision_recall_f1
 import math
 from torch.utils.tensorboard import SummaryWriter
-from models import get_model
+from models import get_model,get_batch_norm_parameters
 import argparse
 import pickle
 import torch.optim as optim
 import os
 from tqdm import tqdm
+import torchvision
 
 
 def train_model():
@@ -33,6 +34,7 @@ def train_model():
     wdir = opt.weights_dir
     padding_kind = opt.padding_kind
     pretrained = opt.pretrained
+    decay = opt.decay
 
 
 
@@ -83,12 +85,37 @@ def train_model():
     writer = SummaryWriter(comment=name)
     model, trainable_params = get_model(model_type,len(classes),pretrained)
 
+    # as weight decay is not applied to batch norm parameters,
+    # creating param groups
+    pg0,pg1,pg2 = [],[],[]
+    batch_norm_params = get_batch_norm_parameters(model)
+    for k,v in dict(model.named_parameters()).items():
+        if v.requires_grad:
+            if k not in batch_norm_params and  ".bias" in k:
+                #biases except bn
+                pg2 += [v]
+            elif k not in batch_norm_params and '.weight' in k:
+                #weights except bn
+                pg1 += [v]
+            else:
+                #rest
+                pg0 += [v]
+
+    print("Biases(except bn) = {},Weights(except bn) = {},Remaining = {}".
+          format(str(sum([x.numel() for x in pg0])),
+                 str(sum([x.numel() for x in pg1])),
+                 str(sum([x.numel() for x in pg2]))))
+
     if adam:
-        optimizer = optim.Adam(trainable_params,lr=lr)
+        optimizer = optim.Adam(pg0,lr=lr)
     else:
-        optimizer = optim.SGD(trainable_params, lr=lr, momentum= 0.937, nesterov=True)
+        optimizer = optim.SGD(pg0, lr=lr, momentum= 0.937, nesterov=True)
 
-
+    #weight decay for weights parameter
+    print("Adding decay = ",decay)
+    optimizer.add_param_group({'params':pg1,'weight_decay':decay})
+    #no weight decay for biases
+    optimizer.add_param_group({'params':pg2})
 
     model = model.to(device)
     nl = len(list(model.parameters()))
@@ -128,6 +155,8 @@ def train_model():
             optimizer.zero_grad()
 
             output = model(imgs)
+            if len(output) != 1:
+                output = output[0]
             # output_probs = torch.nn.functional.softmax(output)
             #
             # _,preds = torch.max(output_probs,1)
@@ -147,6 +176,8 @@ def train_model():
             labels = labels.to(device)
 
             output = model(imgs)
+            if len(output) != 1:
+                output = output[0]
             output_probs = torch.nn.functional.softmax(output)
 
             _, preds = torch.max(output_probs, 1)
@@ -236,6 +267,7 @@ if __name__ == "__main__":
     parser.add_argument('--weights-dir',type=str,help='dir to save weights')
     parser.add_argument("--padding-kind",type=str,help="whole/letterbox/nopad")
     parser.add_argument("--pretrained",action="store_true",help="use pretrained base network")
+    parser.add_argument("--decay",type=float,default=0.0,help="weight decay")
 
 
 

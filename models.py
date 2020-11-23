@@ -104,5 +104,16 @@ def get_model(model_type,num_classes,pretrained=True):
     return model,trainable_params
 
 
+def get_batch_norm_parameters(model):
+    batch_norm_params = []
+    for module_name,module in model.named_modules():
+        if type(module) == nn.modules.batchnorm.BatchNorm2d:
+            for param_name,param_value in module.named_parameters():
+                batch_norm_params.append(module_name + "." + param_name)
+
+    return batch_norm_params
+            
+
+
 # model = get_model('custom-2layer100RGB',2,False)[0]
 # print(sum([x.numel() for x in model.parameters()]))
