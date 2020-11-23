@@ -142,6 +142,7 @@ def train_model():
     best_f1 = - math.inf
     best_validation_error = math.inf
     for epoch in range(start_epoch,start_epoch + num_epochs):
+        model.train()
         test_labels = []
         test_predictions = []
         running_training_loss = 0.0
@@ -155,11 +156,9 @@ def train_model():
             optimizer.zero_grad()
 
             output = model(imgs)
-            if len(output) != 1:
-                output = output[0]
-            # output_probs = torch.nn.functional.softmax(output)
-            #
-            # _,preds = torch.max(output_probs,1)
+
+            if model == 'googlenet' and not pretrained:
+                output = output.logits
 
             training_loss = criterion(output,labels)
 
@@ -176,8 +175,6 @@ def train_model():
             labels = labels.to(device)
 
             output = model(imgs)
-            if len(output) != 1:
-                output = output[0]
             output_probs = torch.nn.functional.softmax(output)
 
             _, preds = torch.max(output_probs, 1)
