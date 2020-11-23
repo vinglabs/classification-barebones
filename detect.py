@@ -61,37 +61,37 @@ def detect_output():
     detectloader = DataLoader(LoadImages(image_files_dir=images_dir,padding_kind=padding_kind,
                                          padded_image_shape=(input_width,input_height),augment=augment_props,normalization_params=(mean,std)),batch_size=32)
 
+    with torch.no_grad():
+        for j,(filenames,imgs) in enumerate(tqdm(detectloader,desc="Running")):
+            model.eval()
+            imgs = imgs.to(device)
+            model = model.to(device)
+            torch.cuda.synchronize()
+            t_start = default_timer()
+            output = model(imgs)
+            torch.cuda.synchronize()
+            print("\n Time ",str(round(default_timer()-t_start,2))+"s")
+            probs = torch.nn.functional.softmax(output)
+            probs, preds = torch.topk(probs, 2 ,1)
+            for i,pred in enumerate(preds):
+                first_pred_index = pred[0].item()
+                second_pred_index = pred[1].item()
+                first_prediction = classes[first_pred_index]
+                second_prediction = classes[second_pred_index]
+                first_prob = probs[i][0].item()
+                second_prob = probs[i][1].item()
+                img = imgs[i].cpu().numpy()
+                img = img.transpose(1, 2, 0)[...,::-1]
+                img = np.ascontiguousarray(img)
+                img = std * img + mean
+                img = cv2.putText(img, first_prediction + "(" + str(round(first_prob,2)) + ")," + second_prediction + "(" + str(round(second_prob,2)) + ")", (10,10),
+                                   fontFace= 1,fontScale=1,color=(255,255,255))
+                filename = os.path.split(filenames[i])[1]
+                savepath = os.path.join(output_dir,filename)
+                cv2.imwrite(savepath,img)
 
-    for j,(filenames,imgs) in enumerate(tqdm(detectloader,desc="Running")):
-        model.eval()
-        imgs = imgs.to(device)
-        model = model.to(device)
-        torch.cuda.synchronize()
-        t_start = default_timer()
-        output = model(imgs)
-        torch.cuda.synchronize()
-        print("\n Time ",str(round(default_timer()-t_start,2))+"s")
-        probs = torch.nn.functional.softmax(output)
-        probs, preds = torch.topk(probs, 2 ,1)
-        for i,pred in enumerate(preds):
-            first_pred_index = pred[0].item()
-            second_pred_index = pred[1].item()
-            first_prediction = classes[first_pred_index]
-            second_prediction = classes[second_pred_index]
-            first_prob = probs[i][0].item()
-            second_prob = probs[i][1].item()
-            img = imgs[i].cpu().numpy()
-            img = img.transpose(1, 2, 0)[...,::-1]
-            img = np.ascontiguousarray(img)
-            img = std * img + mean
-            img = cv2.putText(img, first_prediction + "(" + str(round(first_prob,2)) + ")," + second_prediction + "(" + str(round(second_prob,2)) + ")", (10,10),
-                               fontFace= 1,fontScale=1,color=(255,255,255))
-            filename = os.path.split(filenames[i])[1]
-            savepath = os.path.join(output_dir,filename)
-            cv2.imwrite(savepath,img)
-
-            pickle_savepath = savepath.replace("jpg","p")
-            pickle.dump({os.path.splitext(filename)[0]:[(first_pred_index,first_prob),(second_pred_index,second_prob)]},open(pickle_savepath,"wb"))
+                pickle_savepath = savepath.replace("jpg","p")
+                pickle.dump({os.path.splitext(filename)[0]:[(first_pred_index,first_prob),(second_pred_index,second_prob)]},open(pickle_savepath,"wb"))
 
 
 
