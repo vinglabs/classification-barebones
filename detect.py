@@ -38,7 +38,7 @@ def detect_output():
 
     checkpoint = torch.load(weights)
     classes = pickle.load(open(os.path.join(classes_dir,'one_not.p'),'rb'))['classes']
-    model,optimizer = get_model(model_type,len(classes))
+    model,optimizer = get_model(model_type,len(classes),pretrained=pretrained)
     model.load_state_dict(checkpoint['model'])
     # detectloader = DataLoader(LoadImages(transform=Pad(input_height,input_width,'letterbox'),image_files_dir=images_dir),batch_size=32)
 
