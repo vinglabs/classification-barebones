@@ -87,7 +87,7 @@ def detect_output():
                 img = img.transpose(1,2,0)*std + mean
                 img = img[...,::-1]
                 img = np.ascontiguousarray(img)
-                img = std * img + mean
+                # img = std * img + mean
                 img = cv2.putText(img, first_prediction + "(" + str(round(first_prob,2)) + ")," + second_prediction + "(" + str(round(second_prob,2)) + ")", (10,10),
                                    fontFace= 1,fontScale=1,color=(255,255,255))
                 filename = os.path.split(filenames[i])[1]
