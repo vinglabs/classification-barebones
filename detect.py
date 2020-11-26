@@ -37,7 +37,8 @@ def detect_output():
 
 
     checkpoint = torch.load(weights)
-    classes = pickle.load(open(os.path.join(classes_dir,'one_not.p'),'rb'))['classes']
+    train_one_not = pickle.load(open(os.path.join(classes_dir,'one_not.p'),'rb'))
+    classes = train_one_not['classes']
     model,optimizer = get_model(model_type,len(classes),pretrained=pretrained)
     model.load_state_dict(checkpoint['model'])
     # detectloader = DataLoader(LoadImages(transform=Pad(input_height,input_width,'letterbox'),image_files_dir=images_dir),batch_size=32)
@@ -51,9 +52,10 @@ def detect_output():
         augment_props = {}
 
     if not pretrained:
-        params = pickle.load(open("normalization_parameters.p","rb"))
-        mean = params['mean']
-        std = params['std']
+        # params = pickle.load(open("normalization_parameters.p","rb"))
+        # mean = params['mean']
+        # std = params['std']
+        mean,std = train_one_not['normalization_parameters']
     else:
         mean = [0.485, 0.456, 0.406]
         std = [0.229, 0.224, 0.225]
@@ -81,7 +83,9 @@ def detect_output():
                 first_prob = probs[i][0].item()
                 second_prob = probs[i][1].item()
                 img = imgs[i].cpu().numpy()
-                img = img.transpose(1, 2, 0)[...,::-1]
+                #std and mean are RGB
+                img = img.transpose(1,2,0)*std + mean
+                img = img[...,::-1]
                 img = np.ascontiguousarray(img)
                 img = std * img + mean
                 img = cv2.putText(img, first_prediction + "(" + str(round(first_prob,2)) + ")," + second_prediction + "(" + str(round(second_prob,2)) + ")", (10,10),

@@ -59,12 +59,14 @@ def train_model():
     else:
         augment = {}
 
-    classes = pickle.load(open(os.path.join(train_dir,'one_not.p'),'rb'))['classes']
+    train_one_not = pickle.load(open(os.path.join(train_dir,'one_not.p'),'rb'))
+    classes = train_one_not['classes']
 
     print("Calculating Normalization Parameters...")
     if not pretrained:
-        mean,std = calculate_normalization_parameters(train_dir)
-        pickle.dump({"mean":mean,"std":std},open("normalization_parameters.p","wb"))
+        #mean,std = calculate_normalization_parameters(train_dir)
+        #pickle.dump({"mean":mean,"std":std},open("normalization_parameters.p","wb"))
+        mean,std = train_one_not['normalization_parameters']
     else:
         mean = [0.485, 0.456, 0.406]
         std = [0.229, 0.224, 0.225]
