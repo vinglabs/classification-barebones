@@ -52,10 +52,13 @@ def detect_output():
         augment_props = {}
 
     if not pretrained:
-        # params = pickle.load(open("normalization_parameters.p","rb"))
-        # mean = params['mean']
-        # std = params['std']
-        mean,std = train_one_not['normalization_parameters']
+        try:
+            params = pickle.load(open("normalization_parameters.p","rb"))
+            mean = params['mean']
+            std = params['std']
+        except KeyError:
+            print("normalization_parameters.p not found,reading from training set")
+            mean,std = train_one_not['normalization_parameters']
     else:
         mean = [0.485, 0.456, 0.406]
         std = [0.229, 0.224, 0.225]

@@ -2,6 +2,7 @@ import os
 from helper_utils.file_utils import create_directory,unzip_file
 from helper_utils.s3_helpers import download_from_s3,download_folder_contents_from_s3
 import json
+import subprocess
 
 
 def read_parameter_json():
@@ -34,8 +35,6 @@ def create_assets_directory():
     print("Unzipping data...")
     # unzip dataset
     unzip_file(source=dataset_destination_path, destination=assets_directory_path)
-
-
-
+    
 if __name__=="__main__":
     create_assets_directory()
