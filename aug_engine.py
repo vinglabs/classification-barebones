@@ -1,13 +1,10 @@
-import cv2
 import random
 import numpy as np
+import cv2
+from yolo_label_utils import convert_label_to_xyxy,find_coordinates_with_max_area_for_empty_cut,\
+    find_crop_dimensions_for_empty_cut
 
-#rotate(both types-cropped and uncropped)
-#flip(l-r,b-u)
-#v aug
-#scale
-#shear
-#translate
+
 
 def rotate(img,angle_range,mode="crop"):
     if angle_range == (0,0):
@@ -99,22 +96,18 @@ def translate(img,translate_factor=0.5,mode="crop"):
     return img
 
 
+def cutout(img,yolo_label):
+    img_dims = img.shape[0:2]
+    labels = convert_label_to_xyxy(yolo_label[1:],img_dims)
+    coords = find_coordinates_with_max_area_for_empty_cut(labels,img_dims)
+    crop_dims = find_crop_dimensions_for_empty_cut(coords)
+    img = cv2.rectangle(img,crop_dims[0],crop_dims[1],color=(0,0,0),thickness=-1)
+    return img
 
 
 
 
 
-#
-# img = cv2.imread("images/at.jpeg")
-# img = cv2.resize(img,(250,250))
-# cv2.imshow("win",img)
-# cv2.waitKey(0)
-# rot_img = translate(img,0.1,mode="no-crop")
-# rot_img = rotate_random(rot_img,(0,45),"no-crop")
-# rot_img = flip_lr(rot_img)
-# rot_img = flip_ud(rot_img)
-# rot_img = np.ascontiguousarray(rot_img)
-# augment_hsv(rot_img,hgain=0,sgain=0,vgain=0.1)
-# cv2.imshow("win",rot_img)
-# cv2.waitKey(0)
+
+
 

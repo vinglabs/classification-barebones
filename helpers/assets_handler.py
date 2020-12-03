@@ -35,6 +35,6 @@ def create_assets_directory():
     print("Unzipping data...")
     # unzip dataset
     unzip_file(source=dataset_destination_path, destination=assets_directory_path)
-    
+
 if __name__=="__main__":
     create_assets_directory()
