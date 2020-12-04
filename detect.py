@@ -56,7 +56,7 @@ def detect_output():
             params = pickle.load(open("normalization_parameters.p","rb"))
             mean = params['mean']
             std = params['std']
-        except KeyError:
+        except FileNotFoundError:
             print("normalization_parameters.p not found,reading from training set")
             mean,std = train_one_not['normalization_parameters']
     else:
