@@ -58,7 +58,14 @@ def detect_output():
             std = params['std']
         except FileNotFoundError:
             print("normalization_parameters.p not found,reading from training set")
-            mean,std = train_one_not['normalization_parameters']
+            try:
+                mean,std = train_one_not['normalization_parameters']
+            except:
+                #Fallback for past detect
+                print("normalization parameters not found in train set.Falling back to imagenst")
+                mean = [0.485, 0.456, 0.406]
+                std = [0.229, 0.224, 0.225]
+
     else:
         mean = [0.485, 0.456, 0.406]
         std = [0.229, 0.224, 0.225]
