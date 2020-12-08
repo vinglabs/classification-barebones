@@ -5,7 +5,7 @@ import cv2
 import pickle
 import os
 import numpy as np
-from aug_engine import rotate,flip_lr,flip_ud,translate,hsv,cutout
+from aug_engine import rotate,flip_lr,flip_ud,translate,hsv,cutout,rotate_90,logo_blur
 import torchvision
 
 
@@ -25,13 +25,16 @@ class LoadImagesAndLabels(Dataset):
         img_filename = os.path.split(self.filenames[index])[1].split(".")[0]
         one_not = pickle.load(open(self.label_filenames[0],'rb'))
         label = np.argmax(one_not[img_filename])
-        if "cutout" in self.augment.keys() and self.augment['cutout']:
+        if ("cutout" in self.augment.keys() and self.augment['cutout']) or ("logo_blur" in self.augment.keys() and self.augment['logo_blur']):
             yolo_label = one_not[img_filename + "_yolo"]
         img = pad(img,self.padded_image_shape,self.padding_kind)
 
         if bool(self.augment):
             if "cutout" in self.augment.keys() and self.augment['cutout']:
                 img = cutout(img,yolo_label)
+
+            if "logo_blur" in self.augment.keys() and self.augment['logo_blur']:
+                img = logo_blur(img,yolo_label)
 
             if "rotate" in self.augment.keys():
                 img = rotate(img,self.augment['rotate']['angle_range'],mode=self.augment['rotate']['mode'])
@@ -48,6 +51,8 @@ class LoadImagesAndLabels(Dataset):
             if "hsv" in self.augment.keys():
                 img = hsv(img,self.augment['hsv']['hgain'],self.augment['hsv']['sgain'],self.augment['hsv']['vgain'])
 
+            if "rotate90" in self.augment.keys() and self.augment['rotate90']:
+                img = rotate_90(img)
 
 
 

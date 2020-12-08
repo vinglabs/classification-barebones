@@ -113,3 +113,21 @@ def find_crop_dimensions_for_empty_cut(max_area_coords):
     rand_height = np.random.randint(max_area_crop_height//2,max_area_crop_height)
     return (max_area_center_x - rand_width//2,max_area_center_y-rand_height//2),(max_area_center_x + rand_width//2,max_area_center_y + rand_height//2)
 
+
+def get_roi(img,label_xyxy):
+    (x_min, y_min), (x_max, y_max) = label_xyxy
+    label_width = x_max - x_min
+    label_height = y_max - y_min
+    area = label_height*label_width
+    roi_img = img[y_min:y_min + label_height,x_min:x_min+label_width,:]
+    return roi_img,area
+
+def blur_roi(roi_img,ksize):
+    return cv2.GaussianBlur(roi_img,ksize,0)
+
+def set_roi(roi_img,img,label_xyxy):
+    (x_min, y_min), (x_max, y_max) = label_xyxy
+    label_width = x_max - x_min
+    label_height = y_max - y_min
+    img[y_min:y_min + label_height, x_min:x_min + label_width, :] = roi_img
+    return img

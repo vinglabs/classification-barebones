@@ -2,7 +2,7 @@ import random
 import numpy as np
 import cv2
 from yolo_label_utils import convert_label_to_xyxy,find_coordinates_with_max_area_for_empty_cut,\
-    find_crop_dimensions_for_empty_cut
+    find_crop_dimensions_for_empty_cut,get_roi,set_roi,blur_roi
 
 
 
@@ -106,6 +106,37 @@ def cutout(img,yolo_label):
 
 
 
+
+def rotate_90(img):
+    if random.random() < 0.5:
+        if random.random() <= 0.5:
+            if random.random() <= 0.5:
+                return cv2.rotate(img,cv2.ROTATE_90_CLOCKWISE)
+            else:
+                return cv2.rotate(img,cv2.ROTATE_90_COUNTERCLOCKWISE)
+        else:
+            return cv2.rotate(img,cv2.ROTATE_180)
+    else:
+        return img
+
+def blur(img,kernel_size):
+    return cv2.GaussianBlur(img,kernel_size,0)
+
+def logo_blur(img,yolo_label):
+    if random.random() < 0.5:
+        img_dims = img.shape[0:2]
+        label_xyxy = convert_label_to_xyxy(yolo_label[1:], img_dims)
+        roi_img, area = get_roi(img, label_xyxy)
+
+        if area < 4000:
+            roi_img = blur_roi(roi_img, (7, 7))
+        else:
+            roi_img = blur_roi(roi_img, (13, 13))
+
+        img = set_roi(roi_img, img, label_xyxy)
+
+
+    return img
 
 
 
