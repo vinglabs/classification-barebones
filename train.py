@@ -13,6 +13,10 @@ import torch.optim as optim
 import os
 from tqdm import tqdm
 import torchvision
+import random
+import torch.backends.cudnn as cudnn
+import numpy
+
 
 
 def train_model():
@@ -37,6 +41,15 @@ def train_model():
     decay = opt.decay
 
 
+    #setting seed
+    seed=0
+    random.seed(seed=seed)
+    torch.manual_seed(seed=seed)
+    numpy.random.seed(seed=seed)
+    # Reduce randomness (may be slower on Tesla GPUs) # https://pytorch.org/docs/stable/notes/randomness.html
+    if seed == 0:
+        cudnn.deterministic = False
+        cudnn.benchmark = True
 
     #device selection
     if device == 'gpu':
