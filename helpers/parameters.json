@@ -21,7 +21,8 @@
         "name": "test",
         "padding_kind": "letterbox",
         "pretrained": true,
-        "decay": 0.0
+        "decay": 0.0,
+        "normalization": true
     },
     "detect": {
         "weights_file_name": "best.pt",

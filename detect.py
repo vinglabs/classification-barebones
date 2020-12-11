@@ -26,6 +26,7 @@ def detect_output():
     padding_kind = opt.padding_kind
     augment = opt.augment
     pretrained = opt.pretrained
+    normalization=opt.normalization
 
 
     if os.path.exists(output_dir):
@@ -51,7 +52,7 @@ def detect_output():
     else:
         augment_props = {}
 
-    if not pretrained:
+    if not pretrained and normalization:
         try:
             params = pickle.load(open("normalization_parameters.p","rb"))
             mean = params['mean']
@@ -66,9 +67,14 @@ def detect_output():
                 mean = [0.485, 0.456, 0.406]
                 std = [0.229, 0.224, 0.225]
 
-    else:
+    elif pretrained and normalization:
         mean = [0.485, 0.456, 0.406]
         std = [0.229, 0.224, 0.225]
+
+    else:
+        print("Normalization disabled.Using mean=0,stddev=1")
+        mean = [0,0,0]
+        std = [1,1,1]
 
     detectloader = DataLoader(LoadImages(image_files_dir=images_dir,padding_kind=padding_kind,
                                          padded_image_shape=(input_width,input_height),augment=augment_props,normalization_params=(mean,std)),batch_size=32)
@@ -124,6 +130,7 @@ if __name__ == "__main__":
     parser.add_argument("--padding-kind",type=str,help="whole/letterbox/nopad")
     parser.add_argument("--augment",action='store_true', help='augment during detection')
     parser.add_argument("--pretrained",action="store_true",help="use pretrained base network")
+    parser.add_argument("--normalization",action="store_true",help="normalization enable")
 
 
 

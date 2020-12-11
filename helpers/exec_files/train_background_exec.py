@@ -26,6 +26,7 @@ def create_shell_strings(background=False):
     padding_kind = parameters['train']['padding_kind']
     pretrained = parameters['train']['pretrained']
     decay = parameters['train']['decay']
+    normalization = parameters['train']['normalization']
 
 
 
@@ -94,6 +95,9 @@ def create_shell_strings(background=False):
 
     if pretrained:
         shell_string_train += " --pretrained "
+
+    if normalization:
+        shell_string_train += "  --normalization "
 
     if background:
         shell_string_train += " >nohup.out 2>&1 &"

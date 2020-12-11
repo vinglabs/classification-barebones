@@ -39,6 +39,7 @@ def train_model():
     padding_kind = opt.padding_kind
     pretrained = opt.pretrained
     decay = opt.decay
+    normalization = opt.normalization
 
 
     #setting seed
@@ -76,13 +77,18 @@ def train_model():
     classes = train_one_not['classes']
 
     print("Calculating Normalization Parameters...")
-    if not pretrained:
+    if not pretrained and normalization:
         #mean,std = calculate_normalization_parameters(train_dir)
         #pickle.dump({"mean":mean,"std":std},open("normalization_parameters.p","wb"))
         mean,std = train_one_not['normalization_parameters']
-    else:
+    elif pretrained and normalization:
         mean = [0.485, 0.456, 0.406]
         std = [0.229, 0.224, 0.225]
+    else:
+        print("Normalization disabled.Using mean=0 and stddev=1 as norm params")
+        mean = [0, 0, 0]
+        std = [1,1,1]
+
     
     train_dataset = LoadImagesAndLabels(image_files_dir=train_dir,labels_file_dir=train_dir,
                                         padding_kind=padding_kind,padded_image_shape=(input_width,input_height),
@@ -186,23 +192,24 @@ def train_model():
             pbar.set_description(str(round(running_training_loss,2)))
 
         # pbar = tqdm(enumerate(testloader), total=len(testloader))
-        for i,(imgs,labels,_) in enumerate(tqdm(testloader)):
-            model.eval()
-            imgs = imgs.to(device)
-            labels = labels.to(device)
+        with torch.no_grad():
+            for i,(imgs,labels,_) in enumerate(tqdm(testloader)):
+                model.eval()
+                imgs = imgs.to(device)
+                labels = labels.to(device)
 
-            output = model(imgs)
-            output_probs = torch.nn.functional.softmax(output)
+                output = model(imgs)
+                output_probs = torch.nn.functional.softmax(output)
 
-            _, preds = torch.max(output_probs, 1)
+                _, preds = torch.max(output_probs, 1)
 
-            test_labels.append(labels)
-            test_predictions.append(preds)
+                test_labels.append(labels)
+                test_predictions.append(preds)
 
-            test_loss = criterion(output, labels)
+                test_loss = criterion(output, labels)
 
-            running_test_loss = running_test_loss + test_loss.item()*imgs.size(0)
-            print("\nRunning Test Loss ",round(running_test_loss,2))
+                running_test_loss = running_test_loss + test_loss.item()*imgs.size(0)
+                print("\nRunning Test Loss ",round(running_test_loss,2))
 
         # scheduler.step()
         stat_dict = calculate_class_wise_precision_recall_f1(test_predictions,test_labels,classes)
@@ -282,8 +289,7 @@ if __name__ == "__main__":
     parser.add_argument("--padding-kind",type=str,help="whole/letterbox/nopad")
     parser.add_argument("--pretrained",action="store_true",help="use pretrained base network")
     parser.add_argument("--decay",type=float,default=0.0,help="weight decay")
-
-
+    parser.add_argument("--normalization",action="store_true",help="normalization enable")
 
     opt = parser.parse_args()
     print(opt)
