@@ -43,9 +43,9 @@ def train_model():
 
     #setting seed
     seed=0
-    random.seed(seed=seed)
-    torch.manual_seed(seed=seed)
-    numpy.random.seed(seed=seed)
+    random.seed(seed)
+    torch.manual_seed(seed)
+    numpy.random.seed(seed)
     # Reduce randomness (may be slower on Tesla GPUs) # https://pytorch.org/docs/stable/notes/randomness.html
     if seed == 0:
         cudnn.deterministic = False
