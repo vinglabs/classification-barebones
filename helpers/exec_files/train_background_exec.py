@@ -27,7 +27,7 @@ def create_shell_strings(background=False):
     pretrained = parameters['train']['pretrained']
     decay = parameters['train']['decay']
     normalization = parameters['train']['normalization']
-    subdataset = parameters['train']['subdatset']
+    subdataset = parameters['train']['subdataset']
     test_on_train = parameters['train']['test_on_train']
 
 
