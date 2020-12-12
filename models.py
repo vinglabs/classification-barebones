@@ -1,6 +1,7 @@
 import torchvision
 import torch.nn as nn
 from custom_models import TwoLayerConv100RGB
+from colornet import ColorNet
 
 
 def get_model(model_type,num_classes,pretrained=True):
@@ -91,6 +92,9 @@ def get_model(model_type,num_classes,pretrained=True):
                 model = torchvision.models.mobilenet_v2(pretrained=pretrained)
                 model.classifier[1] = nn.Linear(model.classifier[1].in_features, num_classes)
                 trainable_params = model.parameters()
+        elif model_type == 'colornet':
+            model = ColorNet(num_classes=num_classes)
+            trainable_params = model.parameters()
 
     elif model_type.split("-")[0] == 'custom':
         if model_type.split("-")[1] == "2layer100RGB":
