@@ -40,6 +40,8 @@ def train_model():
     pretrained = opt.pretrained
     decay = opt.decay
     normalization = opt.normalization
+    subdataset = opt.subdataset
+    test_on_train = opt.test_on_train
 
 
     #setting seed
@@ -92,10 +94,11 @@ def train_model():
     
     train_dataset = LoadImagesAndLabels(image_files_dir=train_dir,labels_file_dir=train_dir,
                                         padding_kind=padding_kind,padded_image_shape=(input_width,input_height),
-                                        augment=augment,normalization_params = (mean,std))
+                                        augment=augment,normalization_params = (mean,std),subdataset=subdataset)
 
-    test_dataset = LoadImagesAndLabels(image_files_dir=valid_dir,labels_file_dir=valid_dir,
-                                        padding_kind=padding_kind,padded_image_shape=(input_width,input_height),augment={},normalization_params = (mean,std))
+    test_dataset = LoadImagesAndLabels(image_files_dir=valid_dir if not test_on_train else train_dir,labels_file_dir=valid_dir if not test_on_train else train_dir,
+                                        padding_kind=padding_kind,padded_image_shape=(input_width,input_height),augment={},normalization_params = (mean,std),
+                                       subdataset=subdataset)
 
 
     nw = min([os.cpu_count(), train_batch_size if train_batch_size > 1 else 0, 8])  # number of workers
@@ -290,6 +293,11 @@ if __name__ == "__main__":
     parser.add_argument("--pretrained",action="store_true",help="use pretrained base network")
     parser.add_argument("--decay",type=float,default=0.0,help="weight decay")
     parser.add_argument("--normalization",action="store_true",help="normalization enable")
+    parser.add_argument("--subdataset",action="store_true",help="normalization enable")
+    parser.add_argument("--test-on-train",action="store_true",help="normalization enable")
+
+
+
 
     opt = parser.parse_args()
     print(opt)

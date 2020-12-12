@@ -22,7 +22,9 @@
         "padding_kind": "letterbox",
         "pretrained": true,
         "decay": 0.0,
-        "normalization": true
+        "normalization": true,
+        "test_on_train": false,
+        "subdataset": false
     },
     "detect": {
         "weights_file_name": "best.pt",

@@ -27,6 +27,8 @@ def create_shell_strings(background=False):
     pretrained = parameters['train']['pretrained']
     decay = parameters['train']['decay']
     normalization = parameters['train']['normalization']
+    subdataset = parameters['train']['subdatset']
+    test_on_train = parameters['train']['test_on_train']
 
 
 
@@ -98,6 +100,14 @@ def create_shell_strings(background=False):
 
     if normalization:
         shell_string_train += "  --normalization "
+
+    if test_on_train:
+        shell_string_train += " --test-on-train "
+
+    if subdataset:
+        shell_string_train += " --subdataset "
+
+
 
     if background:
         shell_string_train += " >nohup.out 2>&1 &"

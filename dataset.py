@@ -10,10 +10,13 @@ import torchvision
 
 
 class LoadImagesAndLabels(Dataset):
-    def __init__(self,image_files_dir,labels_file_dir,padding_kind,padded_image_shape,augment,normalization_params):
+    def __init__(self,image_files_dir,labels_file_dir,padding_kind,padded_image_shape,augment,normalization_params,subdataset):
+
 
         self.filenames = glob(os.path.join(image_files_dir , "*.jpg"))
         self.label_filenames = glob(os.path.join(labels_file_dir , "*.p"))
+        if subdataset:
+            self.filenames = randomly_select_n_of_each_class(self.filenames,self.label_filenames)
         self.padding_kind=padding_kind
         self.augment = augment
         self.padded_image_shape = padded_image_shape
@@ -160,8 +163,8 @@ def pad(img,final_dims,kind):
 
 
 
-def calculate_normalization_parameters(train_images_dir):
-    filenames = glob(os.path.join(train_images_dir,"*.jpg"))
+def calculate_normalization_parameters(filenames):
+
     m = np.zeros((1, 3))
     s = np.zeros((1, 3))
     for filename in filenames:
@@ -175,6 +178,32 @@ def calculate_normalization_parameters(train_images_dir):
     std = s / len(filenames)
 
     return mean[0],std[0]
+
+
+def randomly_select_n_of_each_class(img_filenames,label_filenames,n=8):
+
+    one_not = pickle.load(open(label_filenames[0], 'rb'))
+    subdataset_img_filenames = []
+    subdataset_class_scores = {}
+
+    for img_filename in img_filenames:
+        filename = os.path.split(img_filename)[1].split(".")[0]
+        label = np.argmax(one_not[filename])
+        if label not in subdataset_class_scores.keys():
+            subdataset_class_scores[label] = 1
+        else:
+            if subdataset_class_scores[label] == n:
+                continue
+            else:
+                subdataset_class_scores[label] += 1
+                subdataset_img_filenames.append(img_filename)
+    print("Subdataset score of each class ",subdataset_class_scores)
+    print("Subdataset ",subdataset_img_filenames)
+    return subdataset_img_filenames
+
+#
+# randomly_select_n_of_each_class(glob("X:\\python_projects\\vinglabs\\classification-deployments\\assets\\dataset\\valid\\*.jpg"),
+#                                 glob("X:\\python_projects\\vinglabs\\classification-deployments\\assets\\dataset\\valid\\*.p"))
 
 
 
