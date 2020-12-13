@@ -95,6 +95,10 @@ def get_model(model_type,num_classes,pretrained=True):
         elif model_type == 'colornet':
             model = ColorNet(num_classes=num_classes)
             trainable_params = model.parameters()
+        elif model_type == 'colornetlite':
+            model = ColorNet(num_classes=num_classes,lite=True)
+            trainable_params = model.parameters()
+
 
     elif model_type.split("-")[0] == 'custom':
         if model_type.split("-")[1] == "2layer100RGB":

@@ -2,8 +2,9 @@ import torch
 
 
 class ColorNet(torch.nn.Module):
-    def __init__(self,num_classes):
+    def __init__(self,num_classes,lite=False):
         super(ColorNet,self).__init__()
+        self.lite = lite
         self.conv1_b1_1 = torch.nn.Conv2d(in_channels=3,
                                      out_channels=48,
                                      kernel_size=11,
@@ -108,15 +109,23 @@ class ColorNet(torch.nn.Module):
         self.maxpool5_b2_2 = torch.nn.MaxPool2d(stride=2, kernel_size=3)
 
 
-        self.fc1 = torch.nn.Linear(in_features=4096,out_features=4096)
+        if not lite:
+            self.fc1 = torch.nn.Linear(in_features=4096,out_features=4096)
 
-        self.dropout1 = torch.nn.Dropout(p=0.2)
+            self.dropout1 = torch.nn.Dropout(p=0.2)
 
-        self.fc2 = torch.nn.Linear(in_features=4096,out_features=4096)
+            self.fc2 = torch.nn.Linear(in_features=4096,out_features=4096)
 
-        self.dropout2 = torch.nn.Dropout(p=0.2)
+            self.dropout2 = torch.nn.Dropout(p=0.2)
 
-        self.fc3 = torch.nn.Linear(in_features=4096,out_features=num_classes)
+            self.fc3 = torch.nn.Linear(in_features=4096,out_features=num_classes)
+        else:
+            self.fc1 = torch.nn.Linear(in_features=4096, out_features=512)
+
+            self.dropout1 = torch.nn.Dropout(p=0.2)
+
+            self.fc2 = torch.nn.Linear(in_features=512, out_features=num_classes)
+
 
 
     def forward(self,x):
@@ -163,11 +172,17 @@ class ColorNet(torch.nn.Module):
 
         xfc = torch.cat((x5_b1_1,x5_b1_2,x5_b2_1,x5_b2_2),dim=1)
         xfc = xfc.view(-1,4096)
-        xfc = self.fc1(xfc)
-        xfc = self.dropout1(xfc)
-        xfc = self.fc2(xfc)
-        xfc = self.dropout2(xfc)
-        xfc = self.fc3(xfc)
+
+        if not self.lite:
+            xfc = self.fc1(xfc)
+            xfc = self.dropout1(xfc)
+            xfc = self.fc2(xfc)
+            xfc = self.dropout2(xfc)
+            xfc = self.fc3(xfc)
+        else:
+            xfc = self.fc1(xfc)
+            xfc = self.dropout1(xfc)
+            xfc = self.fc2(xfc)
         return xfc
 
 
