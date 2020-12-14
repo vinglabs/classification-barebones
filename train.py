@@ -1,5 +1,6 @@
 from torch.utils.data import DataLoader
-from dataset import LoadImagesAndLabels,calculate_normalization_parameters
+from dataset import LoadImagesAndLabels
+from utils import calculate_class_weights,xavier_initialization
 import torch
 import torch.nn as nn
 from torch.optim import lr_scheduler
@@ -91,7 +92,7 @@ def train_model():
         mean = [0, 0, 0]
         std = [1,1,1]
 
-    
+
     train_dataset = LoadImagesAndLabels(image_files_dir=train_dir,labels_file_dir=train_dir,
                                         padding_kind=padding_kind,padded_image_shape=(input_width,input_height),
                                         augment=augment,normalization_params = (mean,std),subdataset=subdataset)
@@ -100,6 +101,8 @@ def train_model():
                                         padding_kind=padding_kind,padded_image_shape=(input_width,input_height),augment={},normalization_params = (mean,std),
                                        subdataset=subdataset)
 
+    class_weights = calculate_class_weights(train_dir)
+    print("class weights ",class_weights)
 
     nw = min([os.cpu_count(), train_batch_size if train_batch_size > 1 else 0, 8])  # number of workers
     print("Num workers ",str(nw))
@@ -108,6 +111,8 @@ def train_model():
 
     writer = SummaryWriter(comment=name)
     model, trainable_params = get_model(model_type,len(classes),pretrained)
+    if model_type == 'colornet' or 'colornetlite':
+        xavier_initialization(model)
 
     # as weight decay is not applied to batch norm parameters,
     # creating param groups
@@ -161,7 +166,7 @@ def train_model():
         start_epoch = 0
 
 
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.CrossEntropyLoss(weight=class_weights)
 
     #scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
 
