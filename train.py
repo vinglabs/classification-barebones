@@ -101,7 +101,7 @@ def train_model():
                                         padding_kind=padding_kind,padded_image_shape=(input_width,input_height),augment={},normalization_params = (mean,std),
                                        subdataset=subdataset)
 
-    class_weights = calculate_class_weights(train_dir)
+    class_weights = calculate_class_weights(train_dir,device)
     print("class weights ",class_weights)
 
     nw = min([os.cpu_count(), train_batch_size if train_batch_size > 1 else 0, 8])  # number of workers

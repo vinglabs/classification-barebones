@@ -5,7 +5,7 @@ import numpy as np
 import torch
 
 
-def calculate_class_weights(train_dir):
+def calculate_class_weights(train_dir,device):
     img_filenames = glob(os.path.join(train_dir,"*.jpg"))
     one_not = pickle.load(open(glob(os.path.join(train_dir,"*.p"))[0], 'rb'))
     num_classes = len(one_not['classes'])
@@ -23,11 +23,11 @@ def calculate_class_weights(train_dir):
 
         total_examples = sum(class_freq)
         weights = [round(total_examples/class_freq_indi,4) for class_freq_indi in class_freq]
-        weights = torch.tensor(weights,dtype=torch.float32)
+        weights = torch.tensor(weights,dtype=torch.float32,device=device)
 
     else:
 
-        weights = torch.tensor([1]*num_classes,dtype=torch.float32)
+        weights = torch.tensor([1]*num_classes,dtype=torch.float32,device=device)
 
 
     return weights
