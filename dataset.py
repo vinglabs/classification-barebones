@@ -209,7 +209,7 @@ def randomly_select_n_of_each_class(img_filenames,label_filenames,n=8):
 # randomly_select_n_of_each_class(glob("X:\\python_projects\\vinglabs\\classification-deployments\\assets\\dataset\\train\\*.jpg"),
 #                                 glob("X:\\python_projects\\vinglabs\\classification-deployments\\assets\\dataset\\train\\*.p"))
 
-calculate_class_weights("X:\\python_projects\\vinglabs\\classification-deployments\\assets\\dataset\\train\\")
+#calculate_class_weights("X:\\python_projects\\vinglabs\\classification-deployments\\assets\\dataset\\train\\")
 
 
 
