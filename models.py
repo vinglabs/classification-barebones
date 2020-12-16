@@ -92,7 +92,7 @@ def get_model(model_type,num_classes,pretrained=True):
                 model = torchvision.models.mobilenet_v2(pretrained=pretrained)
                 model.classifier[1] = nn.Linear(model.classifier[1].in_features, num_classes)
                 trainable_params = model.parameters()
-        elif model_type == 'colornet' or 'colornet-avg':
+        elif model_type in ['colornet' ,'colornet_avg']:
             if model_type == 'colornet':
                 print("Loading colornet...")
                 model = ColorNet(num_classes=num_classes)
@@ -100,7 +100,7 @@ def get_model(model_type,num_classes,pretrained=True):
                 print("loading colornet-avg...")
                 model = ColorNet(num_classes=num_classes,avg_pool=True)
             trainable_params = model.parameters()
-        elif model_type == 'colornetlite' or 'colornetlite-avg':
+        elif model_type in ['colornetlite','colornetlite_avg']:
             if model_type == 'colornetlite':
                 print("loading colornetlite")
                 model = ColorNet(num_classes=num_classes,lite=True)
@@ -117,6 +117,7 @@ def get_model(model_type,num_classes,pretrained=True):
         else:
             raise("Incorrect custom model specified!")
     else:
+        print(model_type)
         raise("Incorrect model specified!")
 
     return model,trainable_params
@@ -133,5 +134,5 @@ def get_batch_norm_parameters(model):
             
 
 
-# model = get_model('custom-2layer100RGB',2,False)[0]
+#model = get_model('colornetlite_avg',2,False)[0]
 # print(sum([x.numel() for x in model.parameters()]))
