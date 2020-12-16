@@ -111,7 +111,7 @@ def train_model():
 
     writer = SummaryWriter(comment=name)
     model, trainable_params = get_model(model_type,len(classes),pretrained)
-    if model_type == 'colornet_avg' or 'colornetlite_avg' or 'colornet' or 'colornetlite':
+    if model_type in  ['colornet_avg', 'colornetlite_avg' , 'colornet' , 'colornetlite']:
         print("Initializaing xavier")
         xavier_initialization(model)
 
