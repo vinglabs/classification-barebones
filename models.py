@@ -92,11 +92,21 @@ def get_model(model_type,num_classes,pretrained=True):
                 model = torchvision.models.mobilenet_v2(pretrained=pretrained)
                 model.classifier[1] = nn.Linear(model.classifier[1].in_features, num_classes)
                 trainable_params = model.parameters()
-        elif model_type == 'colornet':
-            model = ColorNet(num_classes=num_classes)
+        elif model_type == 'colornet' or 'colornet-avg':
+            if model_type == 'colornet':
+                print("Loading colornet...")
+                model = ColorNet(num_classes=num_classes)
+            else:
+                print("loading colornet-avg...")
+                model = ColorNet(num_classes=num_classes,avg_pool=True)
             trainable_params = model.parameters()
-        elif model_type == 'colornetlite':
-            model = ColorNet(num_classes=num_classes,lite=True)
+        elif model_type == 'colornetlite' or 'colornetlite-avg':
+            if model_type == 'colornetlite':
+                print("loading colornetlite")
+                model = ColorNet(num_classes=num_classes,lite=True)
+            else:
+                print("loading colornetlite-avg")
+                model = ColorNet(num_classes=num_classes,lite=True,avg_pool=True)
             trainable_params = model.parameters()
 
 

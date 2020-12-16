@@ -7,7 +7,7 @@ import os
 import numpy as np
 from aug_engine import rotate,flip_lr,flip_ud,translate,hsv,cutout,rotate_90,logo_blur
 import torchvision
-
+import random
 
 class LoadImagesAndLabels(Dataset):
     def __init__(self,image_files_dir,labels_file_dir,padding_kind,padded_image_shape,augment,normalization_params,subdataset):
@@ -32,30 +32,37 @@ class LoadImagesAndLabels(Dataset):
             yolo_label = one_not[img_filename + "_yolo"]
         img = pad(img,self.padded_image_shape,self.padding_kind)
 
-        if bool(self.augment):
+        if bool(self.augment) and random.random() < 0.5:
             if "cutout" in self.augment.keys() and self.augment['cutout']:
                 img = cutout(img,yolo_label)
 
             if "logo_blur" in self.augment.keys() and self.augment['logo_blur']:
-                img = logo_blur(img,yolo_label)
+                if random.random() < 0.5:
+                    img = logo_blur(img,yolo_label)
 
             if "rotate" in self.augment.keys():
-                img = rotate(img,self.augment['rotate']['angle_range'],mode=self.augment['rotate']['mode'])
+                if random.random() < 0.5:
+                    img = rotate(img,self.augment['rotate']['angle_range'],mode=self.augment['rotate']['mode'])
 
             if "flip_lr" in self.augment.keys() and self.augment['flip_lr']:
-                img = flip_lr(img)
+                if random.random() < 0.5:
+                    img = flip_lr(img)
 
             if "flip_ud" in self.augment.keys() and self.augment['flip_ud']:
-                img = flip_ud(img)
+                if random.random() < 0.5:
+                    img = flip_ud(img)
 
             if "translate" in self.augment.keys():
-                img = translate(img,self.augment['translate']['translate_factor'],self.augment['translate']['mode'])
+                if random.random() < 0.5:
+                    img = translate(img,self.augment['translate']['translate_factor'],self.augment['translate']['mode'])
 
             if "hsv" in self.augment.keys():
-                img = hsv(img,self.augment['hsv']['hgain'],self.augment['hsv']['sgain'],self.augment['hsv']['vgain'])
+                if random.random() < 0.5:
+                    img = hsv(img,self.augment['hsv']['hgain'],self.augment['hsv']['sgain'],self.augment['hsv']['vgain'])
 
             if "rotate90" in self.augment.keys() and self.augment['rotate90']:
-                img = rotate_90(img)
+                if random.random() < 0.5:
+                    img = rotate_90(img)
 
 
 

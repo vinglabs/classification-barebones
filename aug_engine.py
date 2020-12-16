@@ -45,14 +45,11 @@ def rotate(img,angle_range,mode="crop"):
 
 
 def flip_lr(img):
-    if random.random() < 0.5:
-        img = np.fliplr(img)
+    img = np.fliplr(img)
     return img
 
 def flip_ud(img):
-    if random.random() < 0.5:
-        img = np.flipud(img)
-
+    img = np.flipud(img)
     return img
 
 
@@ -108,32 +105,29 @@ def cutout(img,yolo_label):
 
 
 def rotate_90(img):
-    if random.random() < 0.5:
+    if random.random() <= 0.5:
         if random.random() <= 0.5:
-            if random.random() <= 0.5:
-                return cv2.rotate(img,cv2.ROTATE_90_CLOCKWISE)
-            else:
-                return cv2.rotate(img,cv2.ROTATE_90_COUNTERCLOCKWISE)
+            return cv2.rotate(img,cv2.ROTATE_90_CLOCKWISE)
         else:
-            return cv2.rotate(img,cv2.ROTATE_180)
+            return cv2.rotate(img,cv2.ROTATE_90_COUNTERCLOCKWISE)
     else:
-        return img
+        return cv2.rotate(img,cv2.ROTATE_180)
+
 
 def blur(img,kernel_size):
     return cv2.GaussianBlur(img,kernel_size,0)
 
 def logo_blur(img,yolo_label):
-    if random.random() < 0.5:
-        img_dims = img.shape[0:2]
-        label_xyxy = convert_label_to_xyxy(yolo_label[1:], img_dims)
-        roi_img, area = get_roi(img, label_xyxy)
+    img_dims = img.shape[0:2]
+    label_xyxy = convert_label_to_xyxy(yolo_label[1:], img_dims)
+    roi_img, area = get_roi(img, label_xyxy)
 
-        if area < 4000:
-            roi_img = blur_roi(roi_img, (7, 7))
-        else:
-            roi_img = blur_roi(roi_img, (13, 13))
+    if area < 4000:
+        roi_img = blur_roi(roi_img, (7, 7))
+    else:
+        roi_img = blur_roi(roi_img, (13, 13))
 
-        img = set_roi(roi_img, img, label_xyxy)
+    img = set_roi(roi_img, img, label_xyxy)
 
 
     return img

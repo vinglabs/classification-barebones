@@ -2,8 +2,12 @@ import torch
 
 
 class ColorNet(torch.nn.Module):
-    def __init__(self,num_classes,lite=False):
+    def __init__(self,num_classes,lite=False,avg_pool=False):
         super(ColorNet,self).__init__()
+        if avg_pool:
+            pool = torch.nn.AvgPool2d
+        else:
+            pool = torch.nn.MaxPool2d
         self.lite = lite
         self.conv1_b1_1 = torch.nn.Conv2d(in_channels=3,
                                      out_channels=48,
@@ -15,8 +19,8 @@ class ColorNet(torch.nn.Module):
                                         kernel_size=11,
                                         stride=4)
         self.activation1_b2_1 = torch.nn.ReLU()
-        self.maxpool1_b1_1 = torch.nn.MaxPool2d(stride=2,kernel_size=3)
-        self.maxpool1_b2_1 = torch.nn.MaxPool2d(stride=2,kernel_size=3)
+        self.maxpool1_b1_1 = pool(stride=2,kernel_size=3)
+        self.maxpool1_b2_1 = pool(stride=2,kernel_size=3)
         self.batchnorm1_b1_1 = torch.nn.BatchNorm2d(num_features=48, momentum=0.03, eps=1E-4)
         self.batchnorm1_b2_1 = torch.nn.BatchNorm2d(num_features=48, momentum=0.03, eps=1E-4)
 
@@ -49,10 +53,10 @@ class ColorNet(torch.nn.Module):
                                           stride=1)
         self.activation2_b2_2 = torch.nn.ReLU()
 
-        self.maxpool2_b1_1 = torch.nn.MaxPool2d(stride=2, kernel_size=3)
-        self.maxpool2_b1_2 = torch.nn.MaxPool2d(stride=2, kernel_size=3)
-        self.maxpool2_b2_1 = torch.nn.MaxPool2d(stride=2, kernel_size=3)
-        self.maxpool2_b2_2 = torch.nn.MaxPool2d(stride=2, kernel_size=3)
+        self.maxpool2_b1_1 = pool(stride=2, kernel_size=3)
+        self.maxpool2_b1_2 = pool(stride=2, kernel_size=3)
+        self.maxpool2_b2_1 = pool(stride=2, kernel_size=3)
+        self.maxpool2_b2_2 = pool(stride=2, kernel_size=3)
         self.batchnorm2_b1_1 = torch.nn.BatchNorm2d(num_features=64, momentum=0.03, eps=1E-4)
         self.batchnorm2_b1_2 = torch.nn.BatchNorm2d(num_features=64, momentum=0.03, eps=1E-4)
         self.batchnorm2_b2_1 = torch.nn.BatchNorm2d(num_features=64, momentum=0.03, eps=1E-4)
@@ -132,10 +136,10 @@ class ColorNet(torch.nn.Module):
                                      stride=1)
         self.activation5_b2_2 = torch.nn.ReLU()
 
-        self.maxpool5_b1_1 = torch.nn.MaxPool2d(stride=2, kernel_size=3)
-        self.maxpool5_b1_2 = torch.nn.MaxPool2d(stride=2, kernel_size=3)
-        self.maxpool5_b2_1 = torch.nn.MaxPool2d(stride=2, kernel_size=3)
-        self.maxpool5_b2_2 = torch.nn.MaxPool2d(stride=2, kernel_size=3)
+        self.maxpool5_b1_1 = pool(stride=2, kernel_size=3)
+        self.maxpool5_b1_2 = pool(stride=2, kernel_size=3)
+        self.maxpool5_b2_1 = pool(stride=2, kernel_size=3)
+        self.maxpool5_b2_2 = pool(stride=2, kernel_size=3)
 
 
         if not lite:
