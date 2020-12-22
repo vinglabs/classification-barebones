@@ -84,13 +84,20 @@ def train_model():
         #mean,std = calculate_normalization_parameters(train_dir)
         #pickle.dump({"mean":mean,"std":std},open("normalization_parameters.p","wb"))
         mean,std = train_one_not['normalization_parameters']
+        print("Using NP from training set")
+        print("norm params ",mean,std)
     elif pretrained and normalization:
+        print("Using pretrained NP")
         mean = [0.485, 0.456, 0.406]
         std = [0.229, 0.224, 0.225]
+        print("norm params ",mean,std)
+
     else:
         print("Normalization disabled.Using mean=0 and stddev=1 as norm params")
         mean = [0, 0, 0]
         std = [1,1,1]
+        print("norm params ",mean,std)
+
 
 
     train_dataset = LoadImagesAndLabels(image_files_dir=train_dir,labels_file_dir=train_dir,
