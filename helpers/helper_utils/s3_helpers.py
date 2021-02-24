@@ -1,5 +1,6 @@
 import boto3
 import os
+import gdown
 
 def download_from_s3(s3_bucket,source_key,destination_path):
     s3_client = boto3.client('s3')
@@ -20,4 +21,10 @@ def download_folder_contents_from_s3(bucket_name,source_key,destination_director
 
 def sync_to_S3_command(source,destination_bucket,destination_key):
     return "aws s3 sync {} s3://{}/{}".format(source,destination_bucket,destination_key)
+
+def download_from_gdrive(url,destination_path):
+    gdown.download(url, destination_path, quiet=False)
+
+
+
 

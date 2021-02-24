@@ -1,6 +1,6 @@
 import os
 from helper_utils.file_utils import create_directory,unzip_file
-from helper_utils.s3_helpers import download_from_s3,download_folder_contents_from_s3
+from helper_utils.s3_helpers import download_from_s3,download_folder_contents_from_s3,download_from_gdrive
 import json
 import subprocess
 
@@ -18,6 +18,7 @@ def create_assets_directory():
     assets_directory_path = os.path.join(project_directory_path, "assets")
     dataset_s3_key = parameters['dataset_s3_info']['dataset_key']
     dataset_s3_bucket = parameters['dataset_s3_info']['bucket_name']
+    dataset_gdrive_url = parameters['dataset_gdrive_info']['url']
     dataset_destination_filename = parameters['dataset_s3_info']['destination_filename']
 
 
@@ -30,7 +31,8 @@ def create_assets_directory():
     print("Downloading dataset from ", dataset_s3_key, "...")
     # download dataset from s3
     dataset_destination_path = os.path.join(assets_directory_path, dataset_destination_filename)
-    download_from_s3(dataset_s3_bucket, dataset_s3_key, dataset_destination_path)
+    #download_from_s3(dataset_s3_bucket, dataset_s3_key, dataset_destination_path)
+    download_from_gdrive(dataset_gdrive_url,dataset_destination_path)
 
     print("Unzipping data...")
     # unzip dataset

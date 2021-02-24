@@ -4,6 +4,9 @@
         "dataset_key": "datacenter/logo_recognition/17112020/large_brands/dataset.zip",
         "destination_filename": "dataset.zip"
     },
+    "dataset_gdrive_info": {
+        "url": ""
+    },
     "project_directory_path": "X:\\python_projects\\vinglabs\\classification-deployments",
     "model_type": "mobilenet",
     "venv_path": "X:\\python_projects\\virtual_environments\\inference_env\\Scripts\\python",
