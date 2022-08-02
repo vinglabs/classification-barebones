@@ -311,10 +311,12 @@ def train_model():
                  }
 
         torch.save(chkpt,os.path.join(wdir,"last.pt"))
+        wandb.save(os.path.join(wdir,"last.pt"))
 
         if f1avg > best_f1:
             best_f1 = f1avg
             torch.save(chkpt,os.path.join(wdir,"best.pt"))
+            wandb.save(os.path.join(wdir,"best.pt"))
         elif best_f1 == f1avg:
             if best_validation_error > epoch_test_loss:
                 print("Saving due to same f1 but better loss")
