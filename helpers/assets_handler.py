@@ -31,8 +31,8 @@ def create_assets_directory():
     print("Downloading dataset from ", dataset_s3_key, "...")
     # download dataset from s3
     dataset_destination_path = os.path.join(assets_directory_path, dataset_destination_filename)
-    #download_from_s3(dataset_s3_bucket, dataset_s3_key, dataset_destination_path)
-    download_from_gdrive(dataset_gdrive_url,dataset_destination_path)
+    download_from_s3(dataset_s3_bucket, dataset_s3_key, dataset_destination_path)
+    #download_from_gdrive(dataset_gdrive_url,dataset_destination_path)
 
     print("Unzipping data...")
     # unzip dataset
