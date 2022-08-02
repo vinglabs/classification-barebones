@@ -17,11 +17,13 @@ import torchvision
 import random
 import torch.backends.cudnn as cudnn
 import numpy
-
-
+import wandb
 
 def train_model():
 
+    wandb.login(key='924764f1e5cac1fa896fada3c8d64b39a0926275')
+
+    
 
     train_batch_size = opt.batch_size
     train_dir = opt.train_data_dir
@@ -44,7 +46,25 @@ def train_model():
     subdataset = opt.subdataset
     test_on_train = opt.test_on_train
 
+    
 
+    #Dataset Logging wandb
+    if os.path.exists('wandb.p'):
+        print("Adding dataset to wandb.....")
+        with open('wandb.p','rb') as f:
+            number_of_train_images = len(os.listdir(train_dir)) - 1
+            number_of_valid_images = len(os.listdir(valid_dir)) - 1
+            artifact = wandb.Artifact(type=f['dataset_type'],
+                           name=f['dataset_name'],
+                           description=f["dataset_description"],
+                           metadata={'height':input_height,
+                           'width':input_width,
+                           'padding_kind':padding_kind,
+                           'number_of_train_images':number_of_train_images,
+                           'number_of_valid_images':number_of_valid_images,
+                           'classes':pickle.load(open(os.path.join(train_dir,'one_not.p'),'rb'))['classes']})
+            dataset_dir = train_dataset.replace('train','')
+            artifact.add_dir(dataset_dir,name='dataset')
     #setting seed
     seed=0
     random.seed(seed)
@@ -75,9 +95,31 @@ def train_model():
         print("Using augment = ",augment)
     else:
         augment = {}
+    
+    
 
     train_one_not = pickle.load(open(os.path.join(train_dir,'one_not.p'),'rb'))
     classes = train_one_not['classes']
+
+    config = {'train_batch_size': train_batch_size,
+                "model_type":model_type,
+                "num_epochs":num_epochs,
+                "resume":resume,
+                "input_width":input_width,
+                "name":name,
+                "input_height":input_height,
+                "lr":lr,
+                "adam":adam,
+                "weights":weights,
+                "wdir":wdir,
+                "padding_kind":padding_kind,
+                "pretrained":pretrained,
+                "decay":decay,
+                "normalization":normalization,
+                "subdataset":subdataset,
+                "test_on_train":test_on_train,
+                "augment":augment,
+                "classes":classes}
 
     print("Calculating Normalization Parameters...")
     if not pretrained and normalization:
@@ -176,6 +218,19 @@ def train_model():
 
     criterion = nn.CrossEntropyLoss(weight=class_weights)
 
+
+    run = wandb.init(project='alpla-classification',config=config,job_type='train',name=name)
+    print("Running wandb run ",wandb.run.name)
+
+    wandb.define_metric("train/loss",summary="min")
+    wandb.define_metric("test/acc",summary="max")
+    wandb.define_metric("test/loss",summary="min")
+    wandb.define_metric("F1avg",summary="max")
+    wandb.define_metric("Pavg",summary="max")
+    wandb.define_metric("Ravg",summary="max")
+
+
+
     #scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
 
     best_f1 = - math.inf
@@ -235,6 +290,8 @@ def train_model():
         writer.add_scalar("Loss/train",epoch_training_loss,epoch)
         writer.add_scalar("Loss/test",epoch_test_loss,epoch)
         writer.add_scalar("Accuracy/test",stat_dict['accuracy'],epoch)
+        wandb.log({"train/loss":epoch_training_loss,"test/loss":epoch_test_loss,"test/acc":stat_dict['accuracy'],"epoch":epoch},step=epoch)
+
 
 
         f1s = []
@@ -244,6 +301,9 @@ def train_model():
             writer.add_scalar("Precision/"+class_name,stat_dict[class_name]['precision'],epoch)
             writer.add_scalar("Recall/"+class_name,stat_dict[class_name]['recall'],epoch)
             writer.add_scalar("F1/"+class_name,stat_dict[class_name]['f1'],epoch)
+            wandb.log({"{}/precision".format(class_name):stat_dict[class_name]['precision'],
+                       "{}/recall".format(class_name):stat_dict[class_name]['recall'],
+                       "{}/f1".format(class_name):stat_dict[class_name]['f1']},step=epoch)
             f1s.append(stat_dict[class_name]['f1'])
             ps.append(stat_dict[class_name]['precision'])
             rs.append(stat_dict[class_name]['recall'])
@@ -256,6 +316,8 @@ def train_model():
         writer.add_scalar("F1avg",f1avg,epoch)
         writer.add_scalar("Pavg",psavg,epoch)
         writer.add_scalar("Ravg",rsavg,epoch)
+        wandb.log({"F1avg":f1avg,"Pavg":psavg,"Ravg":rsavg,"epoch":epoch},step=epoch)
+
 
 
 
@@ -286,6 +348,12 @@ def train_model():
         print("Mean R ", round(rsavg,4))
         print("Mean F1 ", round(f1avg,4))
 
+    trained_model_artifact = wandb.Artifact(name="trained_model",
+                                                type="model",
+                                                metadata=dict(config))
+    trained_model_artifact.add_dir(wdir,name="weights")
+    run.log_artifact(trained_model_artifact)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--epochs',type=int,default=500)
@@ -308,7 +376,6 @@ if __name__ == "__main__":
     parser.add_argument("--normalization",action="store_true",help="normalization enable")
     parser.add_argument("--subdataset",action="store_true",help="normalization enable")
     parser.add_argument("--test-on-train",action="store_true",help="normalization enable")
-
 
 
 
