@@ -18,6 +18,7 @@ import random
 import torch.backends.cudnn as cudnn
 import numpy
 import wandb
+import json
 
 def train_model():
 
@@ -46,25 +47,7 @@ def train_model():
     subdataset = opt.subdataset
     test_on_train = opt.test_on_train
 
-    
-
-    #Dataset Logging wandb
-    if os.path.exists('wandb.p'):
-        print("Adding dataset to wandb.....")
-        with open('wandb.p','rb') as f:
-            number_of_train_images = len(os.listdir(train_dir)) - 1
-            number_of_valid_images = len(os.listdir(valid_dir)) - 1
-            artifact = wandb.Artifact(type=f['dataset_type'],
-                           name=f['dataset_name'],
-                           description=f["dataset_description"],
-                           metadata={'height':input_height,
-                           'width':input_width,
-                           'padding_kind':padding_kind,
-                           'number_of_train_images':number_of_train_images,
-                           'number_of_valid_images':number_of_valid_images,
-                           'classes':pickle.load(open(os.path.join(train_dir,'one_not.p'),'rb'))['classes']})
-            dataset_dir = train_dataset.replace('train','')
-            artifact.add_dir(dataset_dir,name='dataset')
+        
     #setting seed
     seed=0
     random.seed(seed)
