@@ -202,7 +202,7 @@ def train_model():
     criterion = nn.CrossEntropyLoss(weight=class_weights)
 
 
-    run = wandb.init(project='alpla-classification',config=config,job_type='train',name=name)
+    run = wandb.init(project='alpla-classification-color',config=config,job_type='train',name=name)
     print("Running wandb run ",wandb.run.name)
 
     wandb.define_metric("train/loss",summary="min")
