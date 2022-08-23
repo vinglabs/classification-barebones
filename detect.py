@@ -77,7 +77,7 @@ def detect_output():
         std = [1,1,1]
 
     detectloader = DataLoader(LoadImages(image_files_dir=images_dir,padding_kind=padding_kind,
-                                         padded_image_shape=(input_width,input_height),augment=augment_props,normalization_params=(mean,std)),batch_size=32)
+                                         padded_image_shape=(input_width,input_height),augment=augment_props,normalization_params=(mean,std)),batch_size=32,num_workers=8)
 
     with torch.no_grad():
         for j,(filenames,imgs) in enumerate(tqdm(detectloader,desc="Running")):
