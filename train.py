@@ -19,6 +19,8 @@ import torch.backends.cudnn as cudnn
 import numpy
 import wandb
 import json
+from helpers.helper_utils.s3_helpers import download_from_s3
+from urllib.parse import urlparse
 
 def train_model():
 
@@ -46,6 +48,7 @@ def train_model():
     normalization = opt.normalization
     subdataset = opt.subdataset
     test_on_train = opt.test_on_train
+    use_trained_model = opt.use_trained_model
 
         
     #setting seed
@@ -102,7 +105,9 @@ def train_model():
                 "subdataset":subdataset,
                 "test_on_train":test_on_train,
                 "augment":augment,
-                "classes":classes}
+                "classes":classes,
+                "use_trained_model":use_trained_model,
+                }
 
     print("Calculating Normalization Parameters...")
     if not pretrained and normalization:
@@ -190,11 +195,23 @@ def train_model():
           "Number of trainable parameters: {}".format(str(nl),str(np),str(ng)))
 
 
-    if resume:
+    if resume and not use_trained_model:
         checkpoint = torch.load(os.path.join(wdir,weights))
         model.load_state_dict(checkpoint['model'])
         optimizer.load_state_dict(checkpoint['optimizer'])
         start_epoch = checkpoint['epoch']
+    elif use_trained_model:
+        #https://vinglabs-data.s3.ap-south-1.amazonaws.com/test_data/best1435.pt
+        print("Downloading ",use_trained_model)
+        parse_obj = urlparse(use_trained_model)
+        bucket = parse_obj.netloc.split(".")
+        source_file_path = parse_obj.path[1:]
+        destination_file_path = os.path.join(wdir,source_file_path.split("/")[-1])
+        download_from_s3(bucket,source_file_path,destination_file_path)
+        checkpoint = torch.load(destination_file_path)
+        print("Loading ",destination_file_path)
+        model.load_state_dict(checkpoint['model'])
+        start_epoch = 0
     else:
         start_epoch = 0
 
@@ -361,7 +378,7 @@ if __name__ == "__main__":
     parser.add_argument("--normalization",action="store_true",help="normalization enable")
     parser.add_argument("--subdataset",action="store_true",help="normalization enable")
     parser.add_argument("--test-on-train",action="store_true",help="normalization enable")
-
+    parser.add_argument("--use-trained-model",type=str)
 
 
     opt = parser.parse_args()

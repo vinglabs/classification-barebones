@@ -29,6 +29,7 @@ def create_shell_strings(background=False):
     normalization = parameters['train']['normalization']
     subdataset = parameters['train']['subdataset']
     test_on_train = parameters['train']['test_on_train']
+    use_trained_model = parameters['train']['use_trained_model']
 
 
 
@@ -44,7 +45,7 @@ def create_shell_strings(background=False):
 
 
 
-    if os.path.exists(export_directory_path):
+    if not use_trained_model and  os.path.exists(export_directory_path):
         raise Exception("Export directory already exists.Please manually delete it to continue.")
     else:
         os.mkdir(export_directory_path)
@@ -107,7 +108,8 @@ def create_shell_strings(background=False):
     if subdataset:
         shell_string_train += " --subdataset "
 
-
+    if use_trained_model:
+        shell_string_train += " --use-trained-model " + str(use_trained_model) + " "
 
     if background:
         shell_string_train += " >nohup.out 2>&1 &"
