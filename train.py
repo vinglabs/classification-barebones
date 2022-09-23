@@ -204,7 +204,7 @@ def train_model():
         #https://vinglabs-data.s3.ap-south-1.amazonaws.com/test_data/best1435.pt
         print("Downloading ",use_trained_model)
         parse_obj = urlparse(use_trained_model)
-        bucket = parse_obj.netloc.split(".")
+        bucket = parse_obj.netloc.split(".")[0]
         source_file_path = parse_obj.path[1:]
         destination_file_path = os.path.join(wdir,source_file_path.split("/")[-1])
         download_from_s3(bucket,source_file_path,destination_file_path)
