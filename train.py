@@ -22,6 +22,8 @@ import json
 from helpers.helper_utils.s3_helpers import download_from_s3
 from urllib.parse import urlparse
 
+
+
 def train_model():
 
     wandb.login(key='924764f1e5cac1fa896fada3c8d64b39a0926275')
@@ -49,7 +51,9 @@ def train_model():
     subdataset = opt.subdataset
     test_on_train = opt.test_on_train
     use_trained_model = opt.use_trained_model
+    mixed_precision = opt.mixed_precision
 
+    scaler = torch.cuda.amp.GradScaler(enabled=mixed_precision)
         
     #setting seed
     seed=0
@@ -249,15 +253,20 @@ def train_model():
             labels = labels.to(device)
             optimizer.zero_grad()
 
-            output = model(imgs)
+            with torch.autocast(device_type='cuda', dtype=torch.float16, enabled=mixed_precision):
+                output = model(imgs)
 
-            if model_type == 'googlenet' and not pretrained:
-                output = output.logits
+                if model_type == 'googlenet' and not pretrained:
+                    output = output.logits
 
-            training_loss = criterion(output,labels)
+                training_loss = criterion(output,labels)
 
-            training_loss.backward()
-            optimizer.step()
+            
+            scaler.scale(training_loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
+            # training_loss.backward()
+            # optimizer.step()
             running_training_loss  = running_training_loss + training_loss.item()*imgs.size(0)
             print("\nRunning Training Loss")
             pbar.set_description(str(round(running_training_loss,2)))
@@ -268,8 +277,9 @@ def train_model():
                 model.eval()
                 imgs = imgs.to(device)
                 labels = labels.to(device)
-
-                output = model(imgs)
+                with torch.autocast(device_type='cuda', dtype=torch.float16, enabled=mixed_precision):
+                    output = model(imgs)
+                                    
                 output_probs = torch.nn.functional.softmax(output)
 
                 _, preds = torch.max(output_probs, 1)
@@ -379,6 +389,7 @@ if __name__ == "__main__":
     parser.add_argument("--subdataset",action="store_true",help="normalization enable")
     parser.add_argument("--test-on-train",action="store_true",help="normalization enable")
     parser.add_argument("--use-trained-model",type=str)
+    parser.add_argument("--mixed-precision",action="store_true")
 
 
     opt = parser.parse_args()
