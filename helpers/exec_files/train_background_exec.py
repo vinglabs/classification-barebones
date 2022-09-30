@@ -30,6 +30,7 @@ def create_shell_strings(background=False):
     subdataset = parameters['train']['subdataset']
     test_on_train = parameters['train']['test_on_train']
     use_trained_model = parameters['train']['use_trained_model']
+    mixed_precision = parameters['train']['mixed_precision']
 
 
 
@@ -110,6 +111,9 @@ def create_shell_strings(background=False):
 
     if use_trained_model:
         shell_string_train += " --use-trained-model " + str(use_trained_model) + " "
+
+    if mixed_precision:
+        shell_string_train += " --mixed-precision "
 
     if background:
         shell_string_train += " >nohup.out 2>&1 &"
