@@ -280,14 +280,14 @@ def train_model():
                 with torch.autocast(device_type='cuda', dtype=torch.float16, enabled=mixed_precision):
                     output = model(imgs)
                                     
-                output_probs = torch.nn.functional.softmax(output)
+                    output_probs = torch.nn.functional.softmax(output)
 
-                _, preds = torch.max(output_probs, 1)
+                    _, preds = torch.max(output_probs, 1)
 
-                test_labels.append(labels)
-                test_predictions.append(preds)
+                    test_labels.append(labels)
+                    test_predictions.append(preds)
 
-                test_loss = criterion(output, labels)
+                    test_loss = criterion(output, labels)
 
                 running_test_loss = running_test_loss + test_loss.item()*imgs.size(0)
                 print("\nRunning Test Loss ",round(running_test_loss,2))
